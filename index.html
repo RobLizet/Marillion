@@ -953,7 +953,7 @@ function npSetPlatform(p) {
 
 // Zoek via Piped API het YouTube-video met de meeste views
 async function findYouTubeVideo(artist, title) {
-  var query = encodeURIComponent(artist + ' ' + title);
+  var query = encodeURIComponent(title + ' ' + artist);
   var apis = [
     'https://pipedapi.kavin.rocks/search?q=' + query + '&filter=videos',
     'https://pipedapi.adminforge.de/search?q=' + query + '&filter=videos',
@@ -973,7 +973,7 @@ async function findYouTubeVideo(artist, title) {
       return 'https://music.youtube.com/watch' + best.url.replace('/watch', '');
     } catch(e) {}
   }
-  return 'https://music.youtube.com/search?q=' + encodeURIComponent(artist + ' ' + title);
+  return 'https://music.youtube.com/search?q=' + encodeURIComponent(title + ' ' + artist);
 }
 
 function npStart(tracks, startIdx) {
@@ -1002,7 +1002,7 @@ async function npPlayCurrent() {
 
   if (_npPlatform === 'sp') {
     // Spotify: direct openen, geen async nodig
-    var spUrl = 'https://open.spotify.com/search/' + encodeURIComponent(t.artist + ' ' + t.title) + '/tracks';
+    var spUrl = 'https://open.spotify.com/search/' + encodeURIComponent(t.title + ' ' + t.artist) + '/tracks';
     window.open(spUrl, '_blank');
     return;
   }
@@ -1110,7 +1110,7 @@ async function generatePlaylist() {
     tracks.forEach(function(t) {
       var ytUrl = t.yt;
       if (!ytUrl || ytUrl.indexOf('ARTIEST') > -1 || ytUrl.indexOf('TITEL') > -1) {
-        ytUrl = 'https://music.youtube.com/search?q=' + encodeURIComponent(t.artist + ' ' + t.title);
+        ytUrl = 'https://music.youtube.com/search?q=' + encodeURIComponent(t.title + ' ' + t.artist);
       }
       t.yt = ytUrl; // update for npStart use
       html +=
