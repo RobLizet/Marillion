@@ -211,6 +211,28 @@ canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
 .pt-safe { padding-top: calc(env(safe-area-inset-top, 0px) + 12px); }
 .spin { animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* PLAYLIST */
+.pl-section-label { font-family: ‘DM Mono’, monospace; font-size: 8px; letter-spacing: 0.25em; color: var(–dim); text-transform: uppercase; margin-bottom: 8px; }
+.pl-mood-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.pl-mood { background: var(–card); border: 1px solid var(–border); border-radius: 12px; padding: 13px 14px; font-family: ‘Cinzel’, serif; font-size: 12.5px; letter-spacing: 0.03em; cursor: pointer; transition: all 0.2s; }
+.pl-mood.active { background: rgba(200,168,74,0.12); border-color: rgba(200,168,74,0.45); color: var(–gold2); }
+.pl-genre-chip.active { background: rgba(200,168,74,0.12); border-color: rgba(200,168,74,0.4); color: var(–gold); }
+.pl-generate-btn { width: 100%; margin: 18px 0 20px; padding: 15px; background: linear-gradient(135deg, rgba(200,168,74,0.18), rgba(200,168,74,0.08)); border: 1px solid rgba(200,168,74,0.4); border-radius: 14px; color: var(–gold2); font-family: ‘Cinzel’, serif; font-size: 14px; letter-spacing: 0.08em; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: background 0.2s; }
+.pl-generate-btn:active { background: rgba(200,168,74,0.28); }
+.pl-generate-btn:disabled { opacity: 0.5; }
+.pl-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.pl-title { font-family: ‘Cinzel’, serif; font-size: 15px; letter-spacing: 0.04em; background: linear-gradient(135deg,#fff,var(–gold2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.pl-count { font-family: ‘DM Mono’, monospace; font-size: 9px; color: var(–dim); letter-spacing: 0.1em; }
+.pl-track { display: flex; align-items: flex-start; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(–border); cursor: pointer; }
+.pl-track:last-child { border-bottom: none; }
+.pl-num { font-family: ‘DM Mono’, monospace; font-size: 10px; color: var(–dim); width: 20px; flex-shrink: 0; padding-top: 3px; text-align: right; }
+.pl-track-info { flex: 1; min-width: 0; }
+.pl-track-title { font-size: 14.5px; color: var(–text); line-height: 1.3; }
+.pl-track-artist { font-family: ‘DM Mono’, monospace; font-size: 8.5px; color: var(–teal); letter-spacing: 0.1em; margin-top: 3px; text-transform: uppercase; }
+.pl-track-why { font-size: 12px; color: var(–dim); font-style: italic; margin-top: 3px; line-height: 1.4; }
+.pl-track-link { flex-shrink: 0; display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; background: rgba(200,168,74,0.08); border: 1px solid rgba(200,168,74,0.2); border-radius: 50%; font-size: 15px; text-decoration: none; }
+.pl-regen-btn { width: 100%; margin-top: 16px; padding: 11px; background: var(–card); border: 1px solid var(–border); border-radius: 20px; font-family: ‘DM Mono’, monospace; font-size: 9px; color: var(–muted); letter-spacing: 0.1em; cursor: pointer; text-align: center; }
 </style>
 
 </head>
@@ -367,13 +389,61 @@ canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
 </div>
 </div>
 
-<!-- TABBAR -->
+<!-- SCREEN 5: PLAYLIST -->
 
+<div class="screen" id="s-playlist">
+<div class="pt-safe"></div>
+<div class="page-header">
+  <div class="eyebrow">Nieuwe Ontdekkingen</div>
+  <h1>Jouw<br>Playlist</h1>
+  <p>Onbekende bands, vertrouwde smaak</p>
+  <div class="divider"></div>
+</div>
+<div style="padding:0 16px 120px">
+
+  <!-- STEMMING KIEZEN -->
+
+  <div class="pl-section-label">KIES EEN STEMMING</div>
+  <div class="pl-mood-row">
+    <div class="pl-mood" id="plm-0" onclick="selectPlMood(0,'Melancholisch en emotioneel, zoals Marillion Brave')">🌧 Melancholisch</div>
+    <div class="pl-mood" id="plm-1" onclick="selectPlMood(1,'Donker en zwaar, duistere prog')">🖤 Donker</div>
+    <div class="pl-mood" id="plm-2" onclick="selectPlMood(2,'Dromerig en atmosferisch, ambient prog')">🌌 Dromerig</div>
+    <div class="pl-mood" id="plm-3" onclick="selectPlMood(3,'Episch en avontuurlijk, grootse composities')">🏔 Episch</div>
+    <div class="pl-mood" id="plm-4" onclick="selectPlMood(4,'Psychedelisch en experimenteel')">🌀 Psychedelisch</div>
+    <div class="pl-mood" id="plm-5" onclick="selectPlMood(5,'Intiem en akoestisch, rustige prog')">🕯 Intiem</div>
+  </div>
+
+  <!-- GENRE FILTER -->
+
+  <div class="pl-section-label" style="margin-top:14px">GENRE (optioneel)</div>
+  <div class="search-chips-row" id="pl-genre-row">
+    <div class="search-chip pl-genre-chip" onclick="togglePlGenre(this,'Progressieve rock')">prog rock</div>
+    <div class="search-chip pl-genre-chip" onclick="togglePlGenre(this,'Post-rock instrumentaal')">post-rock</div>
+    <div class="search-chip pl-genre-chip" onclick="togglePlGenre(this,'Symfonische rock')">symfonisch</div>
+    <div class="search-chip pl-genre-chip" onclick="togglePlGenre(this,'Art rock')">art rock</div>
+    <div class="search-chip pl-genre-chip" onclick="togglePlGenre(this,'Neofolk')">neofolk</div>
+    <div class="search-chip pl-genre-chip" onclick="togglePlGenre(this,'Shoegaze dreampop')">shoegaze</div>
+    <div class="search-chip pl-genre-chip" onclick="togglePlGenre(this,'Jazz fusion')">jazz fusion</div>
+  </div>
+
+  <!-- GENEREER KNOP -->
+
+  <button class="pl-generate-btn" id="pl-gen-btn" onclick="generatePlaylist()">
+    <span id="pl-gen-icon">▶</span>
+    <span id="pl-gen-txt">Genereer Playlist</span>
+  </button>
+
+  <!-- PLAYLIST OUTPUT -->
+
+  <div id="pl-output"></div>
+</div>
+</div>
 <div class="tab-bar">
   <div class="tab active" onclick="switchTab('home',this)"><div class="tab-icon">🎭</div><div class="tab-label">Marillion</div></div>
   <div class="tab" onclick="switchTab('bands',this)"><div class="tab-icon">🎸</div><div class="tab-label">Bands</div></div>
   <div class="tab" onclick="switchTab('albums',this)"><div class="tab-icon">💿</div><div class="tab-label">Albums</div></div>
   <div class="tab" onclick="switchTab('discover',this)"><div class="tab-icon">✨</div><div class="tab-label">Ontdek</div></div>
+  <div class="tab" onclick="switchTab('playlist',this)"><div class="tab-icon">🎵</div><div class="tab-label">Playlist</div></div>
 </div>
 
 <!-- ALBUM DETAIL MODAL -->
@@ -830,6 +900,112 @@ document.addEventListener('DOMContentLoaded', function() {
   var inp = document.getElementById('search-input');
   if (inp) inp.addEventListener('keydown', function(e){ if (e.key === 'Enter') doFreeSearch(); });
 });
+
+// ══ PLAYLIST ══
+var _plMoodIdx = -1;
+var _plMoodText = '';
+var _plGenres = [];
+
+function selectPlMood(idx, text) {
+  document.querySelectorAll('.pl-mood').forEach(function(el){ el.classList.remove('active'); });
+  document.getElementById('plm-' + idx).classList.add('active');
+  _plMoodIdx = idx;
+  _plMoodText = text;
+}
+
+function togglePlGenre(el, genre) {
+  el.classList.toggle('active');
+  var i = _plGenres.indexOf(genre);
+  if (i > -1) _plGenres.splice(i, 1);
+  else _plGenres.push(genre);
+}
+
+async function generatePlaylist() {
+  if (!_apiKey) {
+    switchTab('discover', document.querySelectorAll('.tab')[3]);
+    setTimeout(function(){ document.getElementById('apikey-block').classList.remove('hidden'); }, 100);
+    return;
+  }
+  if (_plMoodIdx < 0) {
+    var btn = document.getElementById('pl-gen-btn');
+    btn.style.borderColor = 'rgba(192,57,79,0.8)';
+    document.getElementById('pl-gen-txt').textContent = 'Kies eerst een stemming ↑';
+    setTimeout(function(){ btn.style.borderColor = ''; document.getElementById('pl-gen-txt').textContent = 'Genereer Playlist'; }, 2000);
+    return;
+  }
+
+  var btn = document.getElementById('pl-gen-btn');
+  var icon = document.getElementById('pl-gen-icon');
+  var genTxt = document.getElementById('pl-gen-txt');
+  var output = document.getElementById('pl-output');
+
+  btn.disabled = true;
+  icon.textContent = '…';
+  genTxt.textContent = 'Genereren…';
+  output.innerHTML = '<div style="display:flex;gap:6px;padding:24px 0;justify-content:center"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div></div>';
+
+  var genreStr = _plGenres.length ? ' Genres bij voorkeur: ' + _plGenres.join(', ') + '.' : '';
+  var prompt = 'Stemming: ' + _plMoodText + '.' + genreStr + ' Maak een playlist van precies 12 nummers van ONBEKENDE of MINDER BEKENDE bands. NIET gebruiken: Marillion, Porcupine Tree, Steven Wilson, Pink Floyd, Airbag, Bjørn Riis, Deftones, David Sylvian. Varieer artiesten — geen twee nummers van dezelfde band.';
+
+  try {
+    var res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': _apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1800,
+        system: 'Je bent een muziekkenner. Antwoord ALLEEN in dit JSON-formaat zonder uitleg:\n{"mood":"korte stemmingsnaam","tracks":[{"num":1,"title":"Nummertitel","artist":"Artiestennaam","album":"Albumnaam","year":1990,"why":"één zin waarom dit past bij de smaak van deze Marillion-fan","yt":"https://music.youtube.com/search?q=ARTIEST+TITEL"}]}',
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    var data = await res.json();
+    if (data.error) throw new Error(data.error.message || 'API fout');
+
+    var raw = (data.content && data.content[0] ? data.content[0].text : '{}').replace(/```json|```/g,'').trim();
+    var pl = JSON.parse(raw);
+    var tracks = pl.tracks || [];
+    if (!tracks.length) throw new Error('leeg');
+
+    var html =
+      '<div class="pl-header">' +
+        '<div class="pl-title">' + escHtml(pl.mood || '') + '</div>' +
+        '<div class="pl-count">' + tracks.length + ' nummers</div>' +
+      '</div>' +
+      '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:4px 14px;">';
+
+    tracks.forEach(function(t) {
+      html +=
+        '<div class="pl-track">' +
+          '<div class="pl-num">' + t.num + '</div>' +
+          '<div class="pl-track-info">' +
+            '<div class="pl-track-title">' + escHtml(t.title) + '</div>' +
+            '<div class="pl-track-artist">' + escHtml(t.artist) +
+              (t.album ? ' · ' + escHtml(t.album) : '') +
+              (t.year ? ' · ' + t.year : '') + '</div>' +
+            '<div class="pl-track-why">' + escHtml(t.why) + '</div>' +
+          '</div>' +
+          '<a class="pl-track-link" href="' + escHtml(t.yt) + '" target="_blank">▶</a>' +
+        '</div>';
+    });
+
+    html += '</div><button class="pl-regen-btn" onclick="generatePlaylist()">↺ Nieuwe playlist genereren</button>';
+    output.innerHTML = html;
+
+  } catch(e) {
+    output.innerHTML = '<div style="font-size:13px;color:var(--muted);font-style:italic;padding:8px 0">⚠ Kon geen playlist genereren. Controleer je API-sleutel via het Ontdek tabblad.</div>';
+  }
+
+  btn.disabled = false;
+  icon.textContent = '▶';
+  genTxt.textContent = 'Genereer Playlist';
+}
+
 (function(){
   const canvas = document.getElementById('bg');
   const ctx = canvas.getContext('2d');
