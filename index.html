@@ -1118,9 +1118,7 @@ async function generatePlaylist() {
           '<div class="pl-num">' + t.num + '</div>' +
           '<div class="pl-track-info">' +
             '<div class="pl-track-title">' + escHtml(t.title) + '</div>' +
-            '<div class="pl-track-artist">' + escHtml(t.artist) +
-              (t.album ? ' · ' + escHtml(t.album) : '') +
-              (t.year ? ' · ' + t.year : '') + '</div>' +
+            '<div class="pl-track-artist">' + escHtml(t.artist) + '</div>' +
             '<div class="pl-track-why">' + escHtml(t.why) + '</div>' +
           '</div>' +
           '<div class="pl-track-link">▶</div>' +
