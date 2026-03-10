@@ -90,7 +90,6 @@ canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
 .disco-cover { width: 100%; aspect-ratio: 1; background: #0d1123; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
 .disco-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .disco-cover .cover-placeholder { font-size: 40px; opacity: 0.5; }
-.disco-cover-loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
 .disco-info { padding: 10px 12px 12px; }
 .disco-title { font-family: ‘Cinzel’, serif; font-size: 12px; letter-spacing: 0.03em; line-height: 1.3; }
 .disco-year { font-family: ‘DM Mono’, monospace; font-size: 9px; color: var(–teal); margin-top: 3px; }
@@ -116,7 +115,7 @@ canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
 .amodal-btns { display: flex; gap: 8px; margin-top: 20px; }
 .amodal-btn { flex: 1; padding: 11px 0; border-radius: 10px; border: 1px solid var(–border); background: var(–card); color: var(–text); font-family: ‘DM Mono’, monospace; font-size: 10px; letter-spacing: 0.1em; text-align: center; cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px; }
 .amodal-btn.primary { background: rgba(200,168,74,0.12); border-color: rgba(200,168,74,0.35); color: var(–gold2); }
-.amodal-close { display: block; width: 32px; height: 32px; background: var(–card); border: 1px solid var(–border); border-radius: 50%; margin: 14px 20px 0 auto; display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(–muted); cursor: pointer; }
+.amodal-close { display: flex; width: 32px; height: 32px; background: var(–card); border: 1px solid var(–border); border-radius: 50%; margin: 14px 20px 0 auto; align-items: center; justify-content: center; font-size: 14px; color: var(–muted); cursor: pointer; }
 
 /* BANDS */
 .bands-grid { padding: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -231,7 +230,7 @@ canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
 <div class="bands-grid" id="bands-grid"></div>
 </div>
 
-<!-- SCREEN 3: ALBUMS (other bands) -->
+<!-- SCREEN 3: ALBUMS -->
 
 <div class="screen" id="s-albums">
 <div class="pt-safe"></div>
@@ -334,28 +333,15 @@ canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
 
 <script>
 // ══ DATA ══
-
 const STORY = [
-  {
-    era: 'De Geboorte & Fish-era', years: '1979–1988', color: '#c8a84a',
-    text: `Marillion werd opgericht in <em>Aylesbury, Engeland</em> als een van de weinige bands die in de punk-era durfde voort te borduren op de symfonische prog van Genesis en Yes. Frontman <em>Fish</em> (Derek William Dick) was het theatrale hart: een Schotse storyteller met een stem als een klokkentoren en teksten die literaire diepgang combineerden met rauwe emotie. Hun debuut <em>Script for a Jester's Tear</em> (1983) maakte meteen indruk. <em>Misplaced Childhood</em> (1985) werd een Britse nummer-één hit — een conceptalbum over liefde, verlies en volwassen worden. Maar achter de successen sluimerde onrust. Fish vertrok in 1988 na ruzies over muzikale richting en levensstijl.`
-  },
-  {
-    era: 'De Hogarth-revolutie', years: '1989–1999', color: '#3ab0b8',
-    text: `De band kondigde een nieuwe zanger aan die niemand kende: <em>Steve Hogarth</em>, voormalig toetsenist van The Europeans. Velen voorspelden het einde. In plaats daarvan begon Marillion's rijkste periode. <em>Season's End</em> (1989) toonde een andere band — introverter, emotioneler, cinematischer. Het hoogtepunt was <em>Brave</em> (1994), een conceptalbum over een meisje gevonden op de Severn Bridge. Volledig opgenomen live in de studio, geen overdubs. Puur en rauw. Hogarth's stemgeluid — kwetsbaar én krachtig — gaf de band een nieuwe ziel.`
-  },
-  {
-    era: 'Pioniers van het internet', years: '2000–2009', color: '#8c6bea',
-    text: `Toen hun platenmaatschappij hen liet vallen, deden Marillion iets ongekends: ze <em>presellden</em> hun album via internet aan fans, voordat het gemaakt was. In 1997 verzamelden fans al geld voor een Amerikaanse tour zonder dat de band het had gevraagd. Dit model — later crowdfunding genoemd — was revolutionair. De band bewees dat je zonder label kon overleven met een trouwe fanbase. Albums als <em>Anoraknophobia</em> (2001) en <em>Marbles</em> (2004) werden hun meest persoonlijke en ambitieuze werk ooit.`
-  },
-  {
-    era: 'Meesters van hun vak', years: '2010–heden', color: '#fc8c7a',
-    text: `Veertig jaar na dato zijn Marillion nog steeds actief en relevanter dan ooit. <em>F E A R</em> (2016) was een politiek statement over de staat van de wereld. <em>An Hour Before It's Dark</em> (2022) verkende sterfelijkheid, natuur en tijd met de sereniteit van een band die niets meer te bewijzen heeft — en juist daardoor hun meest ontroerende werk aflevert. Ze spelen nog steeds uitverkochte shows, organiseren hun eigen <em>Marillion Weekend</em> festivals en hebben een van de meest toegewijde fanbases ter wereld: de <em>Freaks</em>.`
-  }
+  { era:'De Geboorte & Fish-era', years:'1979–1988', color:'#c8a84a', text:'Marillion werd opgericht in <em>Aylesbury, Engeland</em> als een van de weinige bands die in de punk-era durfde voort te borduren op de symfonische prog van Genesis en Yes. Frontman <em>Fish</em> (Derek William Dick) was het theatrale hart: een Schotse storyteller met een stem als een klokkentoren en teksten die literaire diepgang combineerden met rauwe emotie. Hun debuut <em>Script for a Jester\'s Tear</em> (1983) maakte meteen indruk. <em>Misplaced Childhood</em> (1985) werd een Britse nummer-één hit — een conceptalbum over liefde, verlies en volwassen worden. Maar achter de successen sluimerde onrust. Fish vertrok in 1988 na ruzies over muzikale richting en levensstijl.' },
+  { era:'De Hogarth-revolutie', years:'1989–1999', color:'#3ab0b8', text:'De band kondigde een nieuwe zanger aan die niemand kende: <em>Steve Hogarth</em>, voormalig toetsenist van The Europeans. Velen voorspelden het einde. In plaats daarvan begon Marillion\'s rijkste periode. <em>Season\'s End</em> (1989) toonde een andere band — introverter, emotioneler, cinematischer. Het hoogtepunt was <em>Brave</em> (1994), een conceptalbum over een meisje gevonden op de Severn Bridge. Volledig opgenomen live in de studio, geen overdubs. Puur en rauw. Hogarth\'s stemgeluid — kwetsbaar én krachtig — gaf de band een nieuwe ziel.' },
+  { era:'Pioniers van het internet', years:'2000–2009', color:'#8c6bea', text:'Toen hun platenmaatschappij hen liet vallen, deden Marillion iets ongekends: ze <em>presellden</em> hun album via internet aan fans, voordat het gemaakt was. In 1997 verzamelden fans al geld voor een Amerikaanse tour zonder dat de band het had gevraagd. Dit model — later crowdfunding genoemd — was revolutionair. De band bewees dat je zonder label kon overleven met een trouwe fanbase. Albums als <em>Anoraknophobia</em> (2001) en <em>Marbles</em> (2004) werden hun meest persoonlijke en ambitieuze werk ooit.' },
+  { era:'Meesters van hun vak', years:'2010–heden', color:'#fc8c7a', text:'Veertig jaar na dato zijn Marillion nog steeds actief en relevanter dan ooit. <em>F E A R</em> (2016) was een politiek statement over de staat van de wereld. <em>An Hour Before It\'s Dark</em> (2022) verkende sterfelijkheid, natuur en tijd met de sereniteit van een band die niets meer te bewijzen heeft — en juist daardoor hun meest ontroerende werk aflevert. Ze spelen nog steeds uitverkochte shows, organiseren hun eigen <em>Marillion Weekend</em> festivals en hebben een van de meest toegewijde fanbases ter wereld: de <em>Freaks</em>.' }
 ];
 
 const DISCO = [
-  { title:"Script for a Jester's Tear", year:1979, era:'fish', color:'#c8a84a', itunesQuery:'Marillion Script for a Jesters Tear', desc:"Het debuutalbum dat Marillion meteen op de kaart zette. Theatraal, episch en vol Genesisachtige grandeur — maar toch uniek door Fish's poëtische teksten.", tracks:["Script for a Jester's Tear","He Knows You Know","The Web","Garden Party","Chelsea Monday","Forgotten Sons"], highlight:[0,5], spotify:'https://open.spotify.com/search/Marillion%20Script%20for%20a%20Jesters%20Tear', ytmusic:'https://music.youtube.com/search?q=Marillion+Script+Jester' },
+  { title:"Script for a Jester's Tear", year:1983, era:'fish', color:'#c8a84a', itunesQuery:'Marillion Script for a Jesters Tear', desc:"Het debuutalbum dat Marillion meteen op de kaart zette. Theatraal, episch en vol Genesisachtige grandeur — maar toch uniek door Fish's poëtische teksten.", tracks:["Script for a Jester's Tear","He Knows You Know","The Web","Garden Party","Chelsea Monday","Forgotten Sons"], highlight:[0,5], spotify:'https://open.spotify.com/search/Marillion%20Script%20for%20a%20Jesters%20Tear', ytmusic:'https://music.youtube.com/search?q=Marillion+Script+Jester' },
   { title:"Fugazi", year:1984, era:'fish', color:'#c8a84a', itunesQuery:'Marillion Fugazi', desc:"Donkerder en complexer dan het debuut. Fish's teksten worden scherper, de muziek voller. 'Assassing' is een van hun meest krachtige nummers.", tracks:["Assassing","Punch and Judy","Jigsaw","Emerald Lies","She Chameleon","Incubus","Fugazi"], highlight:[0,6], spotify:'https://open.spotify.com/search/Marillion+Fugazi', ytmusic:'https://music.youtube.com/search?q=Marillion+Fugazi' },
   { title:"Misplaced Childhood", year:1985, era:'fish', color:'#c8a84a', itunesQuery:'Marillion Misplaced Childhood', desc:"Het meesterwerk van de Fish-era. Een conceptalbum zonder pauze, over liefde, verlies en opgroeien. 'Kayleigh' werd een hit, maar het hele album is één groot werk.", tracks:["Pseudo Silk Kimono","Kayleigh","Lavender","Bitter Suite","Heart of Lothian","Waterhole (Expresso Bongo)","Lords of the Backstage","Blind Curve","Childhoods End","White Feather"], highlight:[1,8], spotify:'https://open.spotify.com/search/Marillion+Misplaced+Childhood', ytmusic:'https://music.youtube.com/search?q=Marillion+Misplaced+Childhood' },
   { title:"Clutching at Straws", year:1987, era:'fish', color:'#c8a84a', itunesQuery:'Marillion Clutching at Straws', desc:"Fish's afscheidscadeau. Een pijnlijk eerlijk album over verslaving, falen en verlies. Zijn donkerste teksten, de band op hun meest rauws.", tracks:["Hotel Hobbies","Warm Wet Circles","That Time of the Night","Going Under","Just for the Record","White Russian","Incommunicado","Torch Song","Slainte Mhath","Sugar Mice","The Last Straw"], highlight:[9,10], spotify:'https://open.spotify.com/search/Marillion+Clutching+at+Straws', ytmusic:'https://music.youtube.com/search?q=Marillion+Clutching+at+Straws' },
@@ -369,7 +355,7 @@ const DISCO = [
   { title:"Anoraknophobia", year:2001, era:'hogarth', color:'#8c6bea', itunesQuery:'Marillion Anoraknophobia', desc:"Een van hun meest persoonlijke albums. Rustig, intiem en doorvoeld. 'This Is the 21st Century' en 'When I Meet God' zijn bijzonder.", tracks:["Between You and Me","When I Meet God","The Fruit of the Wild Rose (Reprise)","Quartz","Map of the World","When It Comes to It","Interior Lulu (Reprise)","Separated Out","We Are","This is the 21st Century","If My Heart Were a Ball It Would Roll Uphill"], highlight:[9,10], spotify:'https://open.spotify.com/search/Marillion+Anoraknophobia', ytmusic:'https://music.youtube.com/search?q=Marillion+Anoraknophobia' },
   { title:"Marbles", year:2004, era:'hogarth', color:'#8c6bea', itunesQuery:'Marillion Marbles', desc:"Een dubbel meesterwerk over de moeizame weg naar herstel en verbinding. 'Neverland' is op de grens van het volmaakte. Een van hun beste albums.", tracks:["The Invisible Man","Marbles I","You're Gone","Fantastic Place","Marbles II","Don't Hurt Yourself","The Damage","Angelina","Marbles III","Neverland","The Wound That Heals","Drilling Holes","Marbles IV"], highlight:[2,9], spotify:'https://open.spotify.com/search/Marillion+Marbles', ytmusic:'https://music.youtube.com/search?q=Marillion+Marbles+2004' },
   { title:"Somewhere Else", year:2007, era:'hogarth', color:'#8c6bea', itunesQuery:'Marillion Somewhere Else', desc:"Toegankelijker maar zeker niet oppervlakkig. Een popgericht album met prachtige melodieën en de gebruikelijke textuele diepgang.", tracks:["The Other Half","See It Like a Baby","Most Toys","No Such Thing","The Wound That Heals","A Voice from the Past","Somewhere Else","Number One","Happiness Is the Road"], highlight:[6], spotify:'https://open.spotify.com/search/Marillion+Somewhere+Else', ytmusic:'https://music.youtube.com/search?q=Marillion+Somewhere+Else' },
-  { title:"Happiness Is the Road", year:2008, era:'hogarth', color:'#8c6bea', itunesQuery:'Marillion Happiness Is the Road', desc:"Een uitgebreid dubbelalbum dat de zoektocht naar geluk onderzoekt vanuit twee perspectieven: 'Essence' (innerlijk) en 'The Hard Shoulder' (buitenwereld).", tracks:["Happiness Is the Road","Whatever Is Next","Wrapped Up in Time","Two Worlds","Interior Lulu (Reprise)","The Man from the Planet Marzipan","Whatever Is Next","Hard Shoulder","Trap the Spark","Essence","The Man from the Planet Marzipan (Reprise)"], highlight:[0,9], spotify:'https://open.spotify.com/search/Marillion+Happiness+Is+the+Road', ytmusic:'https://music.youtube.com/search?q=Marillion+Happiness+Is+the+Road' },
+  { title:"Happiness Is the Road", year:2008, era:'hogarth', color:'#8c6bea', itunesQuery:'Marillion Happiness Is the Road', desc:"Een uitgebreid dubbelalbum dat de zoektocht naar geluk onderzoekt vanuit twee perspectieven: 'Essence' (innerlijk) en 'The Hard Shoulder' (buitenwereld).", tracks:["Happiness Is the Road","Whatever Is Next","Wrapped Up in Time","Two Worlds","Interior Lulu (Reprise)","The Man from the Planet Marzipan","Hard Shoulder","Trap the Spark","Essence"], highlight:[0,8], spotify:'https://open.spotify.com/search/Marillion+Happiness+Is+the+Road', ytmusic:'https://music.youtube.com/search?q=Marillion+Happiness+Is+the+Road' },
   { title:"Sounds That Can't Be Made", year:2012, era:'hogarth', color:'#fc8c7a', itunesQuery:'Marillion Sounds That Cant Be Made', desc:"Een terugkeer naar de grotere, meer epische Marillion. 'Power' en 'Pour My Love' zijn hoogtepunten. Het album leeft van contrasten.", tracks:["Gaza","Power","Pour My Love","Lucky Man","Montreal","Invisible Ink","Sounds That Can't Be Made","Sky Above the Rain"], highlight:[0,5], spotify:'https://open.spotify.com/search/Marillion+Sounds+That+Cant+Be+Made', ytmusic:'https://music.youtube.com/search?q=Marillion+Sounds+That+Cant+Be+Made' },
   { title:"F E A R", year:2016, era:'hogarth', color:'#fc8c7a', itunesQuery:'Marillion FEAR 2016', desc:"Fuck Everyone And Run. Een politiek, woedend en toch poëtisch album over de staat van de wereld. 'The New Kings' is een 19-minuut durend epos over kapitalisme en controle.", tracks:["El Dorado","Living in F E A R","The Leavers","White Paper","The New Kings"], highlight:[0,4], spotify:'https://open.spotify.com/search/Marillion+FEAR+2016', ytmusic:'https://music.youtube.com/search?q=Marillion+F+E+A+R+2016' },
   { title:"With Friends from the Orchestra", year:2019, era:'hogarth', color:'#fc8c7a', itunesQuery:'Marillion With Friends from the Orchestra', desc:"Bestaande nummers opnieuw ingespeeld met een volledig orkest. Herschept klassiekers als 'Neverland' en 'Estonia' in een cinematische pracht.", tracks:["El Dorado","Neverland","Gaza","Separated Out","The Leavers","Ocean Cloud","Estonia","Power","This Strange Engine"], highlight:[1,6,8], spotify:'https://open.spotify.com/search/Marillion+With+Friends+from+the+Orchestra', ytmusic:'https://music.youtube.com/search?q=Marillion+With+Friends+Orchestra' },
@@ -393,44 +379,34 @@ const OTHER_ALBUMS = [
   { icon:'💀', title:'In Absentia', artist:'Porcupine Tree', itunesQuery:'Porcupine Tree In Absentia', year:2002, color:'linear-gradient(135deg,#1e0a0a,#3c1818)', filter:'Porcupine Tree', ytmusic:'https://music.youtube.com/search?q=Porcupine+Tree+In+Absentia' },
   { icon:'🖐️', title:'Hand Cannot Erase', artist:'Steven Wilson', itunesQuery:'Steven Wilson Hand Cannot Erase', year:2015, color:'linear-gradient(135deg,#0a0a1e,#18183c)', filter:'Steven Wilson', ytmusic:'https://music.youtube.com/search?q=Steven+Wilson+Hand+Cannot+Erase' },
   { icon:'🌫️', title:'All Rights Removed', artist:'Airbag', itunesQuery:'Airbag All Rights Removed', year:2011, color:'linear-gradient(135deg,#0a1e14,#183c28)', filter:'Airbag', ytmusic:'https://music.youtube.com/search?q=Airbag+All+Rights+Removed' },
-  { icon:'🏔️', title:'Lullabies in a Car Crash', artist:'Bjørn Riis', year:2014, color:'linear-gradient(135deg,#0a141e,#182838)', filter:'Bjørn Riis', ytmusic:'https://music.youtube.com/search?q=Bjorn+Riis+Lullabies' },
+  { icon:'🏔️', title:'Lullabies in a Car Crash', artist:'Bjørn Riis', itunesQuery:'Bjorn Riis Lullabies in a Car Crash', year:2014, color:'linear-gradient(135deg,#0a141e,#182838)', filter:'Bjørn Riis', ytmusic:'https://music.youtube.com/search?q=Bjorn+Riis+Lullabies' },
   { icon:'⚡', title:'White Pony', artist:'Deftones', itunesQuery:'Deftones White Pony', year:2000, color:'linear-gradient(135deg,#1e0a0a,#400a0a)', filter:'Deftones', ytmusic:'https://music.youtube.com/search?q=Deftones+White+Pony' },
-  { icon:'🌸', title:'Brilliant Trees', artist:'David Sylvian', itunesQuery:'David Sylvian Brilliant Trees', year:1984, color:'linear-gradient(135deg,#1e1400,#3c2a00)', filter:'Sylvian', ytmusic:'https://music.youtube.com/search?q=David+Sylvian+Brilliant+Trees' },
+  { icon:'🌸', title:'Brilliant Trees', artist:'David Sylvian', itunesQuery:'David Sylvian Brilliant Trees', year:1984, color:'linear-gradient(135deg,#1e1400,#3c2a00)', filter:'Sylvian', ytmusic:'https://music.youtube.com/search?q=David+Sylvian+Brilliant+Trees' }
 ];
 
-// ══ COVER ART – via allorigins CORS proxy → iTunes API ══
+// ══ COVER ART ══
 const coverCache = {};
-
 function fetchCover(query) {
   if (coverCache[query]) return Promise.resolve(coverCache[query]);
-  // allorigins.win proxies any URL with proper CORS headers, works on iPhone Safari
   const itunesUrl = 'https://itunes.apple.com/search?term=' + encodeURIComponent(query) + '&entity=album&limit=5&media=music';
   const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(itunesUrl);
   return fetch(proxyUrl)
     .then(r => r.json())
     .then(data => {
       if (!data.results || data.results.length === 0) return null;
-      // Find best match: prefer exact artist name in result
       const queryLower = query.toLowerCase();
       let best = data.results[0];
       for (const r of data.results) {
-        if (r.artistName && queryLower.includes(r.artistName.toLowerCase().split(' ')[0].toLowerCase())) {
-          best = r; break;
-        }
+        if (r.artistName && queryLower.includes(r.artistName.toLowerCase().split(' ')[0].toLowerCase())) { best = r; break; }
       }
-      const art = best.artworkUrl100
-        .replace('100x100bb', '600x600bb')
-        .replace('100x100bb.jpg', '600x600bb.jpg');
+      const art = best.artworkUrl100.replace('100x100bb','600x600bb').replace('100x100bb.jpg','600x600bb.jpg');
       coverCache[query] = art;
       return art;
     })
     .catch(() => null);
 }
 
-
 async function loadCoverIntoElement(elId, query) {
-  const container = document.getElementById(elId);
-  if (!container) return;
   const url = await fetchCover(query);
   if (!url) return;
   const el = document.getElementById(elId);
@@ -439,32 +415,102 @@ async function loadCoverIntoElement(elId, query) {
   img.crossOrigin = 'anonymous';
   img.onload = () => {
     const el2 = document.getElementById(elId);
-    if (el2) el2.innerHTML = '<img src="' + url + '" alt="cover" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:0;">';
+    if (el2) el2.innerHTML = '<img src="' + url + '" alt="cover" style="width:100%;height:100%;object-fit:cover;display:block;">';
   };
   img.onerror = () => {};
   img.src = url;
 }
 
+// ══ RENDER STORY ══
+function renderStory() {
+  const block = document.getElementById('story-block');
+  STORY.forEach(function(s, i) {
+    const el = document.createElement('div');
+    el.className = 'story-card';
+    el.style.animation = 'fadeUp 0.6s ' + (i * 0.08 + 0.3) + 's both';
+    el.innerHTML =
+      '<div class="story-card-header">' +
+        '<div class="story-era-badge">' +
+          '<div class="story-dot" style="background:' + s.color + '"></div>' +
+          '<div class="story-era-title">' + s.era + '</div>' +
+        '</div>' +
+        '<div style="display:flex;align-items:center;gap:8px">' +
+          '<div class="story-years">' + s.years + '</div>' +
+          '<div class="story-chevron">▼</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="story-body">' +
+        '<div class="story-text">' + s.text + '</div>' +
+      '</div>';
+    el.onclick = function() { el.classList.toggle('open'); };
+    block.appendChild(el);
+  });
+  if (block.firstChild) block.firstChild.classList.add('open');
+}
+
+// ══ RENDER DISCO FILTERS ══
+function renderDiscoFilters() {
+  const row = document.getElementById('disco-filters');
+  ['Alles','Fish-era','Hogarth-era'].forEach(function(f) {
+    const el = document.createElement('div');
+    el.className = 'disco-pill' + (f === 'Alles' ? ' on' : '');
+    el.textContent = f;
+    el.onclick = function() {
+      document.querySelectorAll('#disco-filters .disco-pill').forEach(function(p) { p.classList.remove('on'); });
+      el.classList.add('on');
+      renderDiscoGrid(f);
+    };
+    row.appendChild(el);
+  });
+}
+
+// ══ RENDER DISCO GRID ══
+function renderDiscoGrid(filter) {
+  filter = filter || 'Alles';
+  const grid = document.getElementById('disco-grid');
+  grid.innerHTML = '';
+  const items = filter === 'Alles' ? DISCO :
+    filter === 'Fish-era' ? DISCO.filter(function(d){ return d.era === 'fish'; }) :
+    DISCO.filter(function(d){ return d.era !== 'fish'; });
+  items.forEach(function(d, i) {
+    const card = document.createElement('div');
+    card.className = 'disco-card';
+    card.style.animation = 'fadeUp 0.5s ' + (i * 0.04) + 's both';
+    const elId = 'dc-' + i + '-' + filter.replace(/[^a-z]/gi,'_');
+    card.innerHTML =
+      '<div class="disco-cover" id="' + elId + '">' +
+        '<div class="cover-placeholder">💿</div>' +
+      '</div>' +
+      '<div class="disco-info">' +
+        '<div class="disco-title">' + d.title + '<span class="disco-era-dot" style="background:' + d.color + '"></span></div>' +
+        '<div class="disco-year">' + d.year + '</div>' +
+      '</div>';
+    card.onclick = (function(album, id){ return function(){ openAlbumModal(album, id); }; })(d, elId);
+    grid.appendChild(card);
+    if (d.itunesQuery) loadCoverIntoElement(elId, d.itunesQuery);
+  });
+}
+
 // ══ ALBUM MODAL ══
 function openAlbumModal(d, coverElId) {
-  // Cover
   const coverEl = document.getElementById('am-cover');
   const srcEl = document.getElementById(coverElId);
   const img = srcEl ? srcEl.querySelector('img') : null;
   if (img) {
-    coverEl.innerHTML = `<img src="${img.src}" alt="cover">`;
+    coverEl.innerHTML = '<img src="' + img.src + '" alt="cover">';
   } else {
-    coverEl.innerHTML = `<span>${d.era === 'fish' ? '🎩' : '🎭'}</span>`;
-    fetchCover(d.itunesQuery || `marillion ${d.title}`).then(url => {
-      if (url) document.getElementById('am-cover').innerHTML = `<img src="${url}" alt="cover">`;
+    coverEl.innerHTML = '<span>' + (d.era === 'fish' ? '🎩' : '🎭') + '</span>';
+    fetchCover(d.itunesQuery || 'marillion ' + d.title).then(function(url) {
+      if (url) document.getElementById('am-cover').innerHTML = '<img src="' + url + '" alt="cover">';
     });
   }
   document.getElementById('am-title').textContent = d.title;
   document.getElementById('am-year').textContent = d.year + ' · Marillion';
   document.getElementById('am-desc').textContent = d.desc;
-  // Tracks
   const tl = document.getElementById('am-tracks');
-  tl.innerHTML = d.tracks.map((t,i) => `<li class="track-item"><span class="track-num">${i+1}</span><span class="track-name ${d.highlight && d.highlight.includes(i) ? 'highlight' : ''}">${t}</span></li>`).join('');
+  tl.innerHTML = d.tracks.map(function(t,i){
+    return '<li class="track-item"><span class="track-num">' + (i+1) + '</span><span class="track-name ' + (d.highlight && d.highlight.includes(i) ? 'highlight' : '') + '">' + t + '</span></li>';
+  }).join('');
   document.getElementById('am-ytmusic').href = d.ytmusic;
   document.getElementById('am-spotify').href = d.spotify;
   document.getElementById('album-modal').classList.add('open');
@@ -475,49 +521,54 @@ function closeAlbumModalDirect() { document.getElementById('album-modal').classL
 // ══ RENDER BANDS ══
 function renderBands() {
   const grid = document.getElementById('bands-grid');
-  BANDS.forEach((b, i) => {
+  BANDS.forEach(function(b, i) {
     const el = document.createElement('div');
     el.className = 'band-card';
-    el.style.animation = `fadeUp 0.6s ${i*0.05+0.2}s both`;
-    el.innerHTML = `<div class="band-top-bar" style="background:${b.color}"></div><span class="band-icon">${b.icon}</span><div class="band-name">${b.name}</div><div class="band-genre">${b.genre}</div><div class="band-connection">${b.conn.substring(0,75)}…</div>`;
-    el.onclick = () => openModal(b);
+    el.style.animation = 'fadeUp 0.6s ' + (i*0.05+0.2) + 's both';
+    el.innerHTML =
+      '<div class="band-top-bar" style="background:' + b.color + '"></div>' +
+      '<span class="band-icon">' + b.icon + '</span>' +
+      '<div class="band-name">' + b.name + '</div>' +
+      '<div class="band-genre">' + b.genre + '</div>' +
+      '<div class="band-connection">' + b.conn.substring(0,75) + '…</div>';
+    el.onclick = function() { openModal(b); };
     grid.appendChild(el);
   });
 }
 
 // ══ OTHER ALBUMS ══
-function renderOtherAlbums(filter = 'Alles') {
+function renderOtherAlbums(filter) {
+  filter = filter || 'Alles';
   const list = document.getElementById('albums-list');
   list.innerHTML = '';
-  const items = filter === 'Alles' ? OTHER_ALBUMS : OTHER_ALBUMS.filter(a => a.filter === filter);
-  items.forEach((a, i) => {
+  const items = filter === 'Alles' ? OTHER_ALBUMS : OTHER_ALBUMS.filter(function(a){ return a.filter === filter; });
+  items.forEach(function(a, i) {
     const card = document.createElement('div');
     card.className = 'disco-card';
-    card.style.animation = `fadeUp 0.5s ${i*0.04}s both`;
-    const elId = `oa-${i}-${filter}`;
-    card.innerHTML = `
-      <div class="disco-cover" id="${elId}">
-        <div class="cover-placeholder">${a.icon}</div>
-      </div>
-      <div class="disco-info">
-        <div class="disco-title">${a.title}</div>
-        <div class="disco-year">${a.artist} · ${a.year}</div>
-      </div>`;
-    card.onclick = () => { window.open(a.ytmusic, '_blank'); };
+    card.style.animation = 'fadeUp 0.5s ' + (i*0.04) + 's both';
+    const elId = 'oa-' + i + '-' + filter.replace(/[^a-z]/gi,'_');
+    card.innerHTML =
+      '<div class="disco-cover" id="' + elId + '">' +
+        '<div class="cover-placeholder">' + a.icon + '</div>' +
+      '</div>' +
+      '<div class="disco-info">' +
+        '<div class="disco-title">' + a.title + '</div>' +
+        '<div class="disco-year">' + a.artist + ' · ' + a.year + '</div>' +
+      '</div>';
+    card.onclick = function() { window.open(a.ytmusic, '_blank'); };
     list.appendChild(card);
-    loadCoverIntoElement(elId, a.itunesQuery || `${a.artist} ${a.title}`);
+    loadCoverIntoElement(elId, a.itunesQuery || a.artist + ' ' + a.title);
   });
 }
 
 function renderOtherFilters() {
   const row = document.getElementById('album-filters');
-  const filters = ['Alles','Pink Floyd','Porcupine Tree','Steven Wilson','Airbag','Bjørn Riis','Deftones','Sylvian'];
-  filters.forEach(f => {
+  ['Alles','Pink Floyd','Porcupine Tree','Steven Wilson','Airbag','Bjørn Riis','Deftones','Sylvian'].forEach(function(f) {
     const el = document.createElement('div');
     el.className = 'disco-pill' + (f === 'Alles' ? ' on' : '');
     el.textContent = f;
-    el.onclick = () => {
-      document.querySelectorAll('#album-filters .disco-pill').forEach(p => p.classList.remove('on'));
+    el.onclick = function() {
+      document.querySelectorAll('#album-filters .disco-pill').forEach(function(p){ p.classList.remove('on'); });
       el.classList.add('on');
       renderOtherAlbums(f);
     };
@@ -529,44 +580,44 @@ function renderOtherFilters() {
 function openModal(b) {
   document.getElementById('m-icon').textContent = b.icon;
   document.getElementById('m-name').textContent = b.name;
-  document.getElementById('m-sub').textContent = `${b.genre} · ${b.era}`;
+  document.getElementById('m-sub').textContent = b.genre + ' · ' + b.era;
   document.getElementById('m-desc').textContent = b.desc;
   document.getElementById('m-conn').textContent = b.conn;
-  document.getElementById('m-recs').innerHTML = b.recs.map(r=>`<div class="rec-chip">${r}</div>`).join('');
+  document.getElementById('m-recs').innerHTML = b.recs.map(function(r){ return '<div class="rec-chip">' + r + '</div>'; }).join('');
   document.getElementById('m-ytmusic').href = b.ytmusic;
   document.getElementById('m-spotify').href = b.spotify;
   document.getElementById('modal').classList.add('open');
 }
-function closeModal(e) { if(e.target===document.getElementById('modal')) closeModalDirect(); }
+function closeModal(e) { if (e.target === document.getElementById('modal')) closeModalDirect(); }
 function closeModalDirect() { document.getElementById('modal').classList.remove('open'); }
 
 // ══ TABS ══
 function switchTab(id, el) {
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
   document.getElementById('s-'+id).classList.add('active');
   el.classList.add('active');
 }
 
 // ══ AI MOOD ══
 async function getMoodRec(el, mood) {
-  document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('selected'));
+  document.querySelectorAll('.mood-btn').forEach(function(b){ b.classList.remove('selected'); });
   el.classList.add('selected');
   const box = document.getElementById('ai-box');
   const txt = document.getElementById('ai-text');
   box.classList.add('show');
-  txt.innerHTML = `<div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div></div>`;
+  txt.innerHTML = '<div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div></div>';
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
-        model:'claude-sonnet-4-6', max_tokens:300,
-        system:`Je bent een enthousiaste prog rock gids. De gebruiker is een grote Marillion-fan (Fish-era én Hogarth-era) en luistert ook naar: Porcupine Tree, Steven Wilson, Pink Floyd, Airbag, Bjørn Riis, Deftones, David Sylvian. Geef een korte, persoonlijke aanbeveling van 2-3 zinnen in het Nederlands. Noem één specifiek album of nummer. Schrijf warm en direct, alsof je een vriend bent.`,
-        messages:[{role:'user',content:`Stemming: ${mood}. Welk album of nummer past hier perfect bij?`}]
+        model:'claude-haiku-4-5-20251001', max_tokens:300,
+        system:'Je bent een enthousiaste prog rock gids. De gebruiker is een grote Marillion-fan (Fish-era én Hogarth-era) en luistert ook naar: Porcupine Tree, Steven Wilson, Pink Floyd, Airbag, Bjørn Riis, Deftones, David Sylvian. Geef een korte, persoonlijke aanbeveling van 2-3 zinnen in het Nederlands. Noem één specifiek album of nummer. Schrijf warm en direct, alsof je een vriend bent.',
+        messages:[{role:'user',content:'Stemming: ' + mood + '. Welk album of nummer past hier perfect bij?'}]
       })
     });
     const data = await res.json();
-    txt.innerHTML = data.content?.[0]?.text || 'Geen aanbeveling beschikbaar.';
+    txt.innerHTML = data.content && data.content[0] ? data.content[0].text : 'Geen aanbeveling beschikbaar.';
   } catch(e) {
     const fb = {
       'Melancholisch en reflectief':"Zet Marillion's <em>Brave</em> op — een omhelzing voor zware momenten. Of Airbag's <em>All Rights Removed</em> voor koele, noordelijke melancholie.",
@@ -582,25 +633,25 @@ async function getMoodRec(el, mood) {
 (function(){
   const canvas = document.getElementById('bg');
   const ctx = canvas.getContext('2d');
-  let W, H, stars=[];
-  function resize(){ W=canvas.width=window.innerWidth; H=canvas.height=window.innerHeight; }
-  function init(){ stars=[]; for(let i=0;i<150;i++) stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.2+0.2,speed:Math.random()*0.003+0.001,phase:Math.random()*Math.PI*2}); }
+  let W, H, stars = [];
+  function resize(){ W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+  function init(){ stars = []; for(let i=0;i<150;i++) stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.2+0.2,speed:Math.random()*0.003+0.001,phase:Math.random()*Math.PI*2}); }
   function draw(t){
     ctx.clearRect(0,0,W,H);
-    const g=ctx.createRadialGradient(W*.7,H*.2,0,W*.7,H*.2,W*.6);
+    const g = ctx.createRadialGradient(W*.7,H*.2,0,W*.7,H*.2,W*.6);
     g.addColorStop(0,'rgba(139,26,46,0.07)'); g.addColorStop(1,'transparent');
-    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
-    const g2=ctx.createRadialGradient(W*.2,H*.8,0,W*.2,H*.8,W*.5);
+    ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+    const g2 = ctx.createRadialGradient(W*.2,H*.8,0,W*.2,H*.8,W*.5);
     g2.addColorStop(0,'rgba(58,176,184,0.05)'); g2.addColorStop(1,'transparent');
-    ctx.fillStyle=g2; ctx.fillRect(0,0,W,H);
-    stars.forEach(s=>{
-      const a=0.15+0.65*(0.5+0.5*Math.sin(t*s.speed*1000+s.phase));
+    ctx.fillStyle = g2; ctx.fillRect(0,0,W,H);
+    stars.forEach(function(s){
+      const a = 0.15 + 0.65*(0.5+0.5*Math.sin(t*s.speed*1000+s.phase));
       ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
-      ctx.fillStyle=`rgba(232,209,168,${a})`; ctx.fill();
+      ctx.fillStyle = 'rgba(232,209,168,'+a+')'; ctx.fill();
     });
     requestAnimationFrame(draw);
   }
-  window.addEventListener('resize',()=>{resize();init();});
+  window.addEventListener('resize', function(){ resize(); init(); });
   resize(); init(); draw(0);
 })();
 
