@@ -936,6 +936,33 @@ document.addEventListener('DOMContentLoaded', function() {
 var _npTracks = [];
 var _npIdx = 0;
 
+// Zoek via Piped API het YouTube-video met de meeste views
+async function findYouTubeVideo(artist, title) {
+  var query = encodeURIComponent(artist + ' ' + title);
+  var apis = [
+    'https://pipedapi.kavin.rocks/search?q=' + query + '&filter=videos',
+    'https://pipedapi.adminforge.de/search?q=' + query + '&filter=videos',
+    'https://api.piped.yt/search?q=' + query + '&filter=videos'
+  ];
+  for (var i = 0; i < apis.length; i++) {
+    try {
+      var res = await fetch(apis[i]);
+      if (!res.ok) continue;
+      var data = await res.json();
+      var items = (data.items || []).filter(function(v) {
+        return v.url && v.type === 'stream' && v.duration > 60;
+      });
+      if (!items.length) continue;
+      // Neem video met meeste views
+      items.sort(function(a, b) { return (b.views || 0) - (a.views || 0); });
+      var best = items[0];
+      return 'https://www.youtube.com/watch' + best.url.replace('/watch', '');
+    } catch(e) {}
+  }
+  // Fallback: YT Music zoeken
+  return 'https://music.youtube.com/search?q=' + encodeURIComponent(artist + ' ' + title);
+}
+
 function npStart(tracks, startIdx) {
   _npTracks = tracks;
   _npIdx = startIdx || 0;
@@ -951,18 +978,16 @@ function npUpdate() {
   document.getElementById('np-next-btn').disabled = (_npIdx >= _npTracks.length - 1);
   document.getElementById('now-playing-bar').style.display = 'flex';
   document.body.classList.add('has-np');
-  // highlight active track in list
   document.querySelectorAll('.pl-track').forEach(function(el, i){ el.classList.toggle('np-active', i === _npIdx); });
 }
 
-function npPlayCurrent() {
+async function npPlayCurrent() {
   var t = _npTracks[_npIdx];
   if (!t) return;
-  var url = t.yt;
-  if (!url || url.indexOf('ARTIEST') > -1 || url.indexOf('TITEL') > -1) {
-    var q = encodeURIComponent(t.artist + ' ' + t.title);
-    url = 'https://music.youtube.com/search?q=' + q;
-  }
+  // Toon laad-indicator in Now Playing balk
+  document.getElementById('np-track').textContent = '⏳ ' + t.title;
+  var url = await findYouTubeVideo(t.artist, t.title);
+  document.getElementById('np-track').textContent = t.title;
   window.open(url, '_blank');
 }
 
