@@ -956,7 +956,7 @@ async function findYouTubeVideo(artist, title) {
       // Neem video met meeste views
       items.sort(function(a, b) { return (b.views || 0) - (a.views || 0); });
       var best = items[0];
-      return 'https://www.youtube.com/watch' + best.url.replace('/watch', '');
+      return 'https://music.youtube.com/watch' + best.url.replace('/watch', '');
     } catch(e) {}
   }
   // Fallback: YT Music zoeken
