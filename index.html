@@ -957,7 +957,14 @@ function npUpdate() {
 
 function npPlayCurrent() {
   var t = _npTracks[_npIdx];
-  if (t) window.open(t.yt, '_blank');
+  if (!t) return;
+  // Build a clean YouTube search URL from track data as fallback if yt field is generic
+  var url = t.yt;
+  if (!url || url.indexOf('ARTIEST') > -1 || url.indexOf('TITEL') > -1) {
+    var q = encodeURIComponent(t.artist + ' ' + t.title + (t.album ? ' ' + t.album : ''));
+    url = 'https://www.youtube.com/results?search_query=' + q;
+  }
+  window.open(url, '_blank');
 }
 
 function npNext() {
@@ -1031,7 +1038,7 @@ async function generatePlaylist() {
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 1800,
-        system: 'Je bent een muziekkenner. Antwoord ALLEEN in dit JSON-formaat zonder uitleg:\n{"mood":"korte stemmingsnaam","tracks":[{"num":1,"title":"Nummertitel","artist":"Artiestennaam","album":"Albumnaam","year":1990,"why":"één zin waarom dit past bij de smaak van deze Marillion-fan","yt":"https://music.youtube.com/search?q=ARTIEST+TITEL"}]}',
+        system: 'Je bent een muziekkenner. Antwoord ALLEEN in dit JSON-formaat zonder uitleg:\n{"mood":"korte stemmingsnaam","tracks":[{"num":1,"title":"Exacte nummertitel","artist":"Exacte artiestennaam","album":"Albumnaam","year":1990,"why":"één zin waarom dit past bij de smaak van deze Marillion-fan","yt":"https://www.youtube.com/results?search_query=ARTIEST+TITEL+ALBUM+official"}]}\n\nBelangrijk voor het yt-veld: gebruik de EXACTE artiestsnaam + EXACTE nummertitel + albumnaam in de zoekquery, zodat YouTube het juiste nummer vindt. Vervang spaties door + tekens. Voorbeeld: voor "Shades of Blue" van Anathema album "The Optimist": "https://www.youtube.com/results?search_query=Anathema+Shades+of+Blue+The+Optimist"',
         messages: [{ role: 'user', content: prompt }]
       })
     });
@@ -1053,6 +1060,11 @@ async function generatePlaylist() {
       '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:4px 14px;" id="pl-track-list">';
 
     tracks.forEach(function(t) {
+      var ytUrl = t.yt;
+      if (!ytUrl || ytUrl.indexOf('ARTIEST') > -1 || ytUrl.indexOf('TITEL') > -1) {
+        ytUrl = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(t.artist + ' ' + t.title + (t.album ? ' ' + t.album : ''));
+      }
+      t.yt = ytUrl; // update for npStart use
       html +=
         '<div class="pl-track" onclick="npStart(_currentTracks,' + (t.num - 1) + ')">' +
           '<div class="pl-num">' + t.num + '</div>' +
