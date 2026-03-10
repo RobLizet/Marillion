@@ -398,133 +398,35 @@ const OTHER_ALBUMS = [
   { icon:'🌸', title:'Brilliant Trees', artist:'David Sylvian', itunesQuery:'David Sylvian Brilliant Trees', year:1984, color:'linear-gradient(135deg,#1e1400,#3c2a00)', filter:'Sylvian', ytmusic:'https://music.youtube.com/search?q=David+Sylvian+Brilliant+Trees' },
 ];
 
-// ══ COVER ART – hardcoded iTunes CDN URLs (geen API calls nodig) ══
-const COVER_URLS = {
-  'Marillion Script for a Jesters Tear': 'https://upload.wikimedia.org/wikipedia/en/3/3e/MarillionScriptCover.jpg',
-  'Marillion Fugazi': 'https://upload.wikimedia.org/wikipedia/en/6/6e/Marillion_Fugazi.jpg',
-  'Marillion Misplaced Childhood': 'https://upload.wikimedia.org/wikipedia/en/0/07/Marillion-misplaced-childhood.jpg',
-  'Marillion Clutching at Straws': 'https://upload.wikimedia.org/wikipedia/en/6/64/Marillion-clutching-at-straws.jpg',
-  'Marillion Seasons End 1989': 'https://upload.wikimedia.org/wikipedia/en/f/f9/Marillion_-_Season%27s_End.jpg',
-  'Marillion Holidays in Eden': 'https://upload.wikimedia.org/wikipedia/en/c/c5/Marillion_-_Holidays_in_Eden.jpg',
-  'Marillion Brave 1994': 'https://upload.wikimedia.org/wikipedia/en/e/e8/MarillionBrave.jpg',
-  'Marillion Afraid of Sunlight': 'https://upload.wikimedia.org/wikipedia/en/4/4b/Marillion-afraid-of-sunlight.jpg',
-  'Marillion This Strange Engine': 'https://upload.wikimedia.org/wikipedia/en/b/be/Marillion_-_This_Strange_Engine.jpg',
-  'Marillion Radiation 1998': 'https://upload.wikimedia.org/wikipedia/en/9/95/Marillion_-_Radiation.jpg',
-  'Marillion marillion.com album': 'https://upload.wikimedia.org/wikipedia/en/7/76/Marillion.com_cover.jpg',
-  'Marillion Anoraknophobia': 'https://upload.wikimedia.org/wikipedia/en/2/27/Marillion_-_Anoraknophobia.jpg',
-  'Marillion Marbles': 'https://upload.wikimedia.org/wikipedia/en/7/7b/Marillion_-_Marbles.jpg',
-  'Marillion Somewhere Else 2007': 'https://upload.wikimedia.org/wikipedia/en/4/44/Marillion_-_Somewhere_Else.jpg',
-  'Marillion Happiness Is the Road': 'https://upload.wikimedia.org/wikipedia/en/b/b7/Marillion_-_Happiness_Is_the_Road.jpg',
-  'Marillion Sounds That Cant Be Made': 'https://upload.wikimedia.org/wikipedia/en/d/d8/Marillion_Sounds_That_Cant_Be_Made.jpg',
-  'Marillion FEAR 2016': 'https://upload.wikimedia.org/wikipedia/en/a/a5/Marillion_F_E_A_R.jpg',
-  'Marillion With Friends from the Orchestra': 'https://upload.wikimedia.org/wikipedia/en/2/2f/Marillion_With_Friends_from_the_Orchestra.jpg',
-  'Marillion An Hour Before Its Dark': 'https://upload.wikimedia.org/wikipedia/en/e/e9/Marillion_-_An_Hour_Before_It%27s_Dark.jpg',
-  // Other bands
-  'Pink Floyd Dark Side of the Moon': 'https://upload.wikimedia.org/wikipedia/en/3/3b/Dark_Side_of_the_Moon.png',
-  'Pink Floyd Wish You Were Here': 'https://upload.wikimedia.org/wikipedia/en/a/a4/WishYouWereHere.jpg',
-  'Porcupine Tree Fear of a Blank Planet': 'https://upload.wikimedia.org/wikipedia/en/f/f3/PorcupineTree-FearofaBlankPlanet.jpg',
-  'Porcupine Tree In Absentia': 'https://upload.wikimedia.org/wikipedia/en/e/e5/Porcupinetree_inabsentia.jpg',
-  'Steven Wilson Hand Cannot Erase': 'https://upload.wikimedia.org/wikipedia/en/3/3b/Steven_Wilson_-_Hand_Cannot_Erase.jpg',
-  'Airbag All Rights Removed': 'https://upload.wikimedia.org/wikipedia/en/b/b1/Airbag_All_Rights_Removed.jpg',
-  'Deftones White Pony': 'https://upload.wikimedia.org/wikipedia/en/3/3b/Deftones_-_White_Pony.jpg',
-  'David Sylvian Brilliant Trees': 'https://upload.wikimedia.org/wikipedia/en/e/e4/David_Sylvian_-_Brilliant_Trees.jpg',
-};
-
+// ══ COVER ART – via allorigins CORS proxy → iTunes API ══
 const coverCache = {};
 
 function fetchCover(query) {
   if (coverCache[query]) return Promise.resolve(coverCache[query]);
-  // Check hardcoded first
-  if (COVER_URLS[query]) {
-    coverCache[query] = COVER_URLS[query];
-    return Promise.resolve(COVER_URLS[query]);
-  }
-  // Fallback: try via corsproxy (works on iPhone Safari)
-  return fetch(`https://corsproxy.io/?${encodeURIComponent('https://itunes.apple.com/search?term=' + encodeURIComponent(query) + '&entity=album&limit=3&media=music')}`)
+  // allorigins.win proxies any URL with proper CORS headers, works on iPhone Safari
+  const itunesUrl = 'https://itunes.apple.com/search?term=' + encodeURIComponent(query) + '&entity=album&limit=5&media=music';
+  const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(itunesUrl);
+  return fetch(proxyUrl)
     .then(r => r.json())
     .then(data => {
-      if (data.results && data.results.length > 0) {
-        const art = data.results[0].artworkUrl100.replace('100x100bb','600x600bb');
-        coverCache[query] = art; return art;
+      if (!data.results || data.results.length === 0) return null;
+      // Find best match: prefer exact artist name in result
+      const queryLower = query.toLowerCase();
+      let best = data.results[0];
+      for (const r of data.results) {
+        if (r.artistName && queryLower.includes(r.artistName.toLowerCase().split(' ')[0].toLowerCase())) {
+          best = r; break;
+        }
       }
-      return null;
+      const art = best.artworkUrl100
+        .replace('100x100bb', '600x600bb')
+        .replace('100x100bb.jpg', '600x600bb.jpg');
+      coverCache[query] = art;
+      return art;
     })
     .catch(() => null);
 }
 
-// ══ RENDER STORY ══
-function renderStory() {
-  const block = document.getElementById('story-block');
-  STORY.forEach((s, i) => {
-    const card = document.createElement('div');
-    card.className = 'story-card';
-    card.innerHTML = `
-      <div class="story-card-header">
-        <div class="story-era-badge">
-          <div class="story-dot" style="background:${s.color}"></div>
-          <div class="story-era-title">${s.era}</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px">
-          <div class="story-years">${s.years}</div>
-          <div class="story-chevron">▾</div>
-        </div>
-      </div>
-      <div class="story-body">
-        <div class="story-text">${s.text}</div>
-      </div>`;
-    card.style.animation = `fadeUp 0.6s ${i*0.08+0.2}s both`;
-    card.onclick = () => { card.classList.toggle('open'); };
-    block.appendChild(card);
-  });
-}
-
-// ══ RENDER DISCOGRAPHY ══
-let currentDiscoFilter = 'Alles';
-
-function renderDiscoFilters() {
-  const row = document.getElementById('disco-filters');
-  ['Alles','Fish-era','Hogarth-era'].forEach(f => {
-    const el = document.createElement('div');
-    el.className = 'disco-pill' + (f === 'Alles' ? ' on' : '');
-    el.textContent = f;
-    el.onclick = () => {
-      document.querySelectorAll('#disco-filters .disco-pill').forEach(p => p.classList.remove('on'));
-      el.classList.add('on');
-      currentDiscoFilter = f;
-      renderDiscoGrid();
-    };
-    row.appendChild(el);
-  });
-}
-
-function renderDiscoGrid() {
-  const grid = document.getElementById('disco-grid');
-  grid.innerHTML = '';
-  const filtered = DISCO.filter(d => {
-    if (currentDiscoFilter === 'Fish-era') return d.era === 'fish';
-    if (currentDiscoFilter === 'Hogarth-era') return d.era === 'hogarth';
-    return true;
-  });
-  filtered.forEach((d, i) => {
-    const card = document.createElement('div');
-    card.className = 'disco-card';
-    card.style.animation = `fadeUp 0.5s ${i*0.04}s both`;
-    const dotColor = d.era === 'fish' ? '#c8a84a' : (d.year >= 2010 ? '#fc8c7a' : '#3ab0b8');
-    card.innerHTML = `
-      <div class="disco-cover" id="dc-${i}">
-        <div class="cover-placeholder">${d.era === 'fish' ? '🎩' : '🎭'}</div>
-      </div>
-      <div class="disco-info">
-        <div class="disco-title">${d.title}<span class="disco-era-dot" style="background:${dotColor}"></span></div>
-        <div class="disco-year">${d.year}</div>
-      </div>`;
-    card.onclick = () => openAlbumModal(d, `dc-${i}`);
-    grid.appendChild(card);
-    // Load cover async
-    const searchQuery = d.itunesQuery || `marillion ${d.title}`;
-    loadCoverIntoElement(`dc-${i}`, searchQuery);
-  });
-}
 
 async function loadCoverIntoElement(elId, query) {
   const container = document.getElementById(elId);
