@@ -163,7 +163,18 @@ canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
 .ai-response-text { font-size: 15px; line-height: 1.75; color: var(–muted); font-style: italic; }
 .ai-loading { display: flex; gap: 6px; align-items: center; padding: 4px 0; }
 
-/* VRIJ ZOEKEN */
+/* API KEY */
+.apikey-block { background: linear-gradient(135deg,rgba(200,168,74,0.06),rgba(200,168,74,0.02)); border: 1px solid rgba(200,168,74,0.2); border-radius: 14px; padding: 18px; margin-bottom: 16px; }
+.apikey-block.hidden { display: none; }
+.apikey-icon { font-size: 22px; margin-bottom: 6px; }
+.apikey-title { font-family: ‘Cinzel’, serif; font-size: 14px; letter-spacing: 0.04em; margin-bottom: 2px; }
+.apikey-sub { font-family: ‘DM Mono’, monospace; font-size: 8.5px; color: var(–dim); letter-spacing: 0.1em; margin-bottom: 12px; text-transform: uppercase; }
+.apikey-input-row { display: flex; gap: 8px; }
+.apikey-status { font-family: ‘DM Mono’, monospace; font-size: 9px; margin-top: 8px; letter-spacing: 0.1em; min-height: 14px; }
+.apikey-status.ok { color: #4ab88a; }
+.apikey-status.err { color: var(–crimson2); }
+/* CHIPS LABEL */
+.chips-section-label { font-family: ‘DM Mono’, monospace; font-size: 8px; letter-spacing: 0.25em; color: var(–dim); text-transform: uppercase; padding: 10px 2px 4px; }
 .search-divider { display: flex; align-items: center; gap: 10px; margin: 20px 0 16px; }
 .search-divider-line { flex: 1; height: 1px; background: var(–border); }
 .search-divider-label { font-family: ‘DM Mono’, monospace; font-size: 8.5px; letter-spacing: 0.2em; color: var(–dim); text-transform: uppercase; white-space: nowrap; }
@@ -281,53 +292,75 @@ canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
 <div class="page-header">
   <div class="eyebrow">AI-Gids</div>
   <h1>Ontdek<br>Meer</h1>
-  <p>Wat voel je vanavond?</p>
+  <p>Verken de wereld buiten je collectie</p>
   <div class="divider"></div>
 </div>
 <div class="discover-wrap">
-  <div class="discover-hero">
-    <h2>Laat je leiden</h2>
-    <p>Kies een stemming en ontdek welke muziek — geïnspireerd op Marillion — perfect bij dit moment past.</p>
-  </div>
-  <div class="mood-grid">
-    <div class="mood-btn" onclick="getMoodRec(this,'Melancholisch en reflectief')"><span class="mood-icon">🌧️</span><div class="mood-title">Melancholisch</div><div class="mood-sub">Diepe emotie</div></div>
-    <div class="mood-btn" onclick="getMoodRec(this,'Episch en avontuurlijk')"><span class="mood-icon">🏔️</span><div class="mood-title">Episch</div><div class="mood-sub">Avontuur</div></div>
-    <div class="mood-btn" onclick="getMoodRec(this,'Dromerig en atmosferisch')"><span class="mood-icon">🌌</span><div class="mood-title">Dromerig</div><div class="mood-sub">Ambient prog</div></div>
-    <div class="mood-btn" onclick="getMoodRec(this,'Intensief en donker')"><span class="mood-icon">🖤</span><div class="mood-title">Donker</div><div class="mood-sub">Zwaar &amp; diep</div></div>
-  </div>
-  <div class="ai-response" id="ai-box">
-    <div class="ai-response-label">⚡ Jouw Aanbeveling</div>
-    <div id="ai-text" class="ai-response-text"></div>
+
+  <!-- API KEY SECTIE -->
+
+  <div class="apikey-block" id="apikey-block">
+    <div class="apikey-icon">🔑</div>
+    <div class="apikey-title">Anthropic API-sleutel</div>
+    <div class="apikey-sub">Eenmalig invoeren — wordt lokaal bewaard</div>
+    <div class="apikey-input-row">
+      <input type="password" id="apikey-input" class="search-input" placeholder="sk-ant-…" autocomplete="off" autocorrect="off" spellcheck="false" />
+      <button class="search-btn" onclick="saveApiKey()">✓</button>
+    </div>
+    <div id="apikey-status" class="apikey-status"></div>
   </div>
 
-  <div class="search-divider">
-    <div class="search-divider-line"></div>
-    <div class="search-divider-label">of zoek verder</div>
-    <div class="search-divider-line"></div>
-  </div>
+  <!-- ZOEKBOX -->
 
   <div class="search-hero">
-    <h2>Verken buiten de lijst</h2>
-    <p>Typ een artiest, thema, gevoel of instrument — de AI zoekt in de hele muziekwereld naar iets wat bij jou past.</p>
+    <h2>Zoek in de muziekwereld</h2>
+    <p>Typ een genre, artiest, stemming of vergelijking — de AI zoekt 5 aanbevelingen buiten je vaste collectie.</p>
   </div>
 
   <div class="search-input-wrap">
-    <input type="text" id="search-input" class="search-input" placeholder="bijv. 'zoals Brave maar zwaarder'…" maxlength="200" />
+    <input type="text" id="search-input" class="search-input" placeholder="bijv. 'zoals Brave maar donkerder'…" maxlength="200" />
     <button class="search-btn" id="search-btn" onclick="doFreeSearch()">
       <span id="search-btn-text">↵</span>
     </button>
   </div>
 
+  <!-- SNELKNOPPEN - RIJ 1: STEMMINGEN -->
+
+  <div class="chips-section-label">STEMMING</div>
   <div class="search-chips-row">
-    <div class="search-chip" onclick="fillSearch('prog rock melancholisch')">prog melancholisch</div>
-    <div class="search-chip" onclick="fillSearch('prog rock donker en zwaar')">prog donker</div>
-    <div class="search-chip" onclick="fillSearch('psychedelische rock')">psychedelisch</div>
-    <div class="search-chip" onclick="fillSearch('prog rock met cello')">prog + cello</div>
-    <div class="search-chip" onclick="fillSearch('ambient post-rock instrumentaal')">ambient post-rock</div>
-    <div class="search-chip" onclick="fillSearch('neofolk melancholisch Skandinavisch')">neofolk</div>
-    <div class="search-chip" onclick="fillSearch('art rock jaren 80 Brits')">art rock 80s</div>
-    <div class="search-chip" onclick="fillSearch('zoals Marillion Brave maar met orkest')">Brave + orkest</div>
-    <div class="search-chip" onclick="fillSearch('math rock emotioneel gitaar')">math rock</div>
+    <div class="search-chip" onclick="fillSearch('prog rock melancholisch en emotioneel')">🌧 melancholisch</div>
+    <div class="search-chip" onclick="fillSearch('prog rock donker en zwaar en duister')">🖤 donker</div>
+    <div class="search-chip" onclick="fillSearch('dromerig atmosferisch ambient prog')">🌌 dromerig</div>
+    <div class="search-chip" onclick="fillSearch('episch en avontuurlijk orkestrale prog')">🏔 episch</div>
+    <div class="search-chip" onclick="fillSearch('rustig meditatief en intiem prog rock')">🕯 intiem</div>
+    <div class="search-chip" onclick="fillSearch('energiek en intensief progressief rock')">⚡ intensief</div>
+  </div>
+
+  <!-- SNELKNOPPEN - RIJ 2: GENRES -->
+
+  <div class="chips-section-label">GENRE</div>
+  <div class="search-chips-row">
+    <div class="search-chip" onclick="fillSearch('psychedelische rock jaren 70 en 80')">🌀 psychedelisch</div>
+    <div class="search-chip" onclick="fillSearch('neofolk melancholisch Skandinavisch')">🌲 neofolk</div>
+    <div class="search-chip" onclick="fillSearch('ambient post-rock instrumentaal filmisch')">🎞 post-rock</div>
+    <div class="search-chip" onclick="fillSearch('art rock jaren 80 Brits avantgarde')">🎨 art rock 80s</div>
+    <div class="search-chip" onclick="fillSearch('math rock emotioneel complex gitaarwerk')">🧮 math rock</div>
+    <div class="search-chip" onclick="fillSearch('shoegaze dreampop atmosferisch gitaar')">🎸 shoegaze</div>
+    <div class="search-chip" onclick="fillSearch('jazz fusion progressief experimenteel')">🎷 jazz fusion</div>
+    <div class="search-chip" onclick="fillSearch('symfonische rock klassiek en prog')">🎻 symfonisch</div>
+  </div>
+
+  <!-- SNELKNOPPEN - RIJ 3: VERGELIJKINGEN -->
+
+  <div class="chips-section-label">KLINKT ALS</div>
+  <div class="search-chips-row">
+    <div class="search-chip" onclick="fillSearch('zoals Marillion Brave maar zwaarder en donkerder')">zoals Brave</div>
+    <div class="search-chip" onclick="fillSearch('zoals Porcupine Tree maar meer orkest en minder metal')">zoals PT</div>
+    <div class="search-chip" onclick="fillSearch('zoals Pink Floyd maar modernere productie')">zoals Floyd</div>
+    <div class="search-chip" onclick="fillSearch('zoals David Sylvian maar meer band geluid')">zoals Sylvian</div>
+    <div class="search-chip" onclick="fillSearch('zoals Airbag maar meer vocaal en tekst')">zoals Airbag</div>
+    <div class="search-chip" onclick="fillSearch('prog rock met cello en strijkers')">prog + cello</div>
+    <div class="search-chip" onclick="fillSearch('concept album verhaal over verlies of rouw')">concept album</div>
   </div>
 
   <div class="search-results" id="search-results"></div>
@@ -674,37 +707,33 @@ function switchTab(id, el) {
   el.classList.add('active');
 }
 
-// ══ AI MOOD ══
-async function getMoodRec(el, mood) {
-  document.querySelectorAll('.mood-btn').forEach(function(b){ b.classList.remove('selected'); });
-  el.classList.add('selected');
-  const box = document.getElementById('ai-box');
-  const txt = document.getElementById('ai-text');
-  box.classList.add('show');
-  txt.innerHTML = '<div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div></div>';
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST', headers:{'Content-Type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
-      body: JSON.stringify({
-        model:'claude-haiku-4-5-20251001', max_tokens:300,
-        system:'Je bent een enthousiaste prog rock gids. De gebruiker is een grote Marillion-fan (Fish-era én Hogarth-era) en luistert ook naar: Porcupine Tree, Steven Wilson, Pink Floyd, Airbag, Bjørn Riis, Deftones, David Sylvian. Geef een korte, persoonlijke aanbeveling van 2-3 zinnen in het Nederlands. Noem één specifiek album of nummer. Schrijf warm en direct, alsof je een vriend bent.',
-        messages:[{role:'user',content:'Stemming: ' + mood + '. Welk album of nummer past hier perfect bij?'}]
-      })
-    });
-    const data = await res.json();
-    txt.innerHTML = data.content && data.content[0] ? data.content[0].text : 'Geen aanbeveling beschikbaar.';
-  } catch(e) {
-    const fb = {
-      'Melancholisch en reflectief':"Zet Marillion's <em>Brave</em> op — een omhelzing voor zware momenten. Of Airbag's <em>All Rights Removed</em> voor koele, noordelijke melancholie.",
-      'Episch en avontuurlijk':"Pink Floyd's <em>Echoes</em> (23 min.) of Porcupine Tree's <em>The Sky Moves Sideways</em>. Koptelefoon op, ogen dicht.",
-      'Dromerig en atmosferisch':"David Sylvian's <em>Secrets of the Beehive</em>. Bjørn Riis' <em>Lullabies in a Car Crash</em> zweeft in dezelfde sfeer — nachtblauw en rustig.",
-      'Intensief en donker':"Deftones' <em>White Pony</em> gecombineerd met Marillion's <em>Clutching at Straws</em> — twee albums over vallen en niet opstaan."
-    };
-    txt.innerHTML = fb[mood] || "Marillion's <em>Brave</em> — altijd het goede antwoord.";
+// ══ API KEY ══
+var _apiKey = localStorage.getItem('marillion_apikey') || '';
+
+function saveApiKey() {
+  var val = (document.getElementById('apikey-input').value || '').trim();
+  var status = document.getElementById('apikey-status');
+  if (!val.startsWith('sk-ant-')) {
+    status.className = 'apikey-status err';
+    status.textContent = '✕ Sleutel moet beginnen met sk-ant-…';
+    return;
+  }
+  _apiKey = val;
+  localStorage.setItem('marillion_apikey', val);
+  status.className = 'apikey-status ok';
+  status.textContent = '✓ Opgeslagen';
+  document.getElementById('apikey-block').classList.add('hidden');
+}
+
+function initApiKey() {
+  if (_apiKey) {
+    document.getElementById('apikey-block').classList.add('hidden');
+  } else {
+    document.getElementById('apikey-input').addEventListener('keydown', function(e){ if (e.key === 'Enter') saveApiKey(); });
   }
 }
 
-// ══ VRIJ ZOEKEN ══
+// ══ ZOEKEN ══
 function fillSearch(text) {
   document.getElementById('search-input').value = text;
   doFreeSearch();
@@ -714,6 +743,13 @@ async function doFreeSearch() {
   var query = (document.getElementById('search-input').value || '').trim();
   if (!query) return;
 
+  if (!_apiKey) {
+    document.getElementById('apikey-block').classList.remove('hidden');
+    document.getElementById('apikey-status').className = 'apikey-status err';
+    document.getElementById('apikey-status').textContent = '↑ Vul eerst je API-sleutel in';
+    return;
+  }
+
   var btn = document.getElementById('search-btn');
   var btnTxt = document.getElementById('search-btn-text');
   var results = document.getElementById('search-results');
@@ -722,36 +758,40 @@ async function doFreeSearch() {
   btn.disabled = true;
   results.className = 'search-results show';
   results.innerHTML =
-    '<div class="search-result-label">🔍 Zoeken...</div>' +
-    '<div class="ai-response" style="display:block;padding:16px">' +
-      '<div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div></div>' +
-    '</div>';
+    '<div class="search-result-label">🔍 Zoeken naar "' + escHtml(query) + '"…</div>' +
+    '<div style="display:flex;gap:6px;padding:14px 0"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div></div>';
 
   try {
     var res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'x-api-key': _apiKey,
+        'anthropic-version': '2023-06-01',
         'anthropic-dangerous-direct-browser-access': 'true'
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 800,
-        system: 'Je bent een muziekkenner gespecialiseerd in progressieve rock, art rock, post-rock en aanverwante genres. De gebruiker is een grote Marillion-fan (zowel Fish-era als Hogarth-era) en luistert ook naar: Porcupine Tree, Steven Wilson, Pink Floyd, Airbag, Bjørn Riis, Deftones, David Sylvian.\n\nGeef precies 4 aanbevelingen op basis van het verzoek van de gebruiker. BUITEN de bekende collectie zoeken — dus niet de al bekende artiesten herhalen tenzij het een onbekend album is.\n\nAntwoord ALLEEN in dit JSON-formaat, zonder uitleg erbuiten:\n{"results":[{"title":"Nummertitel of Albumtitel","artist":"Artiestennaam","type":"nummer of album","why":"1-2 zinnen waarom dit past, in het Nederlands","ytmusic":"https://music.youtube.com/search?q=ARTIEST+TITEL","spotify":"https://open.spotify.com/search/ARTIEST%20TITEL"}]}',
+        max_tokens: 1000,
+        system: 'Je bent een muziekkenner gespecialiseerd in progressieve rock, art rock, post-rock en aanverwante genres. De gebruiker is een grote Marillion-fan (zowel Fish-era als Hogarth-era) en luistert ook naar: Porcupine Tree, Steven Wilson, Pink Floyd, Airbag, Bjørn Riis, Deftones, David Sylvian.\n\nGeef precies 5 aanbevelingen op basis van het verzoek. Zoek BUITEN de bekende collectie — geen bekende artiesten herhalen tenzij het echt een onbekend album is.\n\nAntwoord ALLEEN in dit JSON-formaat, niets anders:\n{"results":[{"title":"Albumtitel of Nummertitel","artist":"Artiestennaam","type":"album of nummer","why":"1-2 zinnen waarom dit past, in het Nederlands","ytmusic":"https://music.youtube.com/search?q=ARTIEST+TITEL","spotify":"https://open.spotify.com/search/ARTIEST%20TITEL"}]}',
         messages: [{ role: 'user', content: 'Zoek muziek voor: ' + query }]
       })
     });
 
     var data = await res.json();
+
+    if (data.error) {
+      throw new Error(data.error.message || 'API fout');
+    }
+
     var raw = data.content && data.content[0] ? data.content[0].text : '{}';
-    // strip possible markdown fences
     raw = raw.replace(/```json|```/g, '').trim();
     var parsed = JSON.parse(raw);
     var items = parsed.results || [];
 
     if (!items.length) throw new Error('Geen resultaten');
 
-    var html = '<div class="search-result-label">✦ ' + items.length + ' aanbevelingen voor "' + escHtml(query) + '"</div>';
+    var html = '<div class="search-result-label">✦ ' + items.length + ' aanbevelingen</div>';
     items.forEach(function(item) {
       html +=
         '<div class="search-result-card">' +
@@ -766,10 +806,15 @@ async function doFreeSearch() {
     });
     results.innerHTML = html;
 
-  } catch(e) {
+  } catch(err) {
+    var msg = err.message || '';
+    var errHtml = msg.includes('401') || msg.includes('auth')
+      ? '⚠ Ongeldige API-sleutel. Klik op 🔑 hierboven om te wijzigen.'
+      : '⚠ ' + (msg || 'Verbinding mislukt. Controleer je sleutel en internetverbinding.');
     results.innerHTML =
-      '<div class="search-result-label">⚠ Geen verbinding</div>' +
-      '<div class="ai-response" style="display:block"><div class="ai-response-text">Probeer het straks opnieuw.</div></div>';
+      '<div class="search-result-label">Fout</div>' +
+      '<div style="font-size:13px;color:var(--muted);font-style:italic;padding:4px 0">' + errHtml +
+      ' <span onclick="document.getElementById(\'apikey-block\').classList.remove(\'hidden\')" style="color:var(--gold);cursor:pointer;text-decoration:underline">API-sleutel wijzigen</span></div>';
   }
 
   btnTxt.textContent = '↵';
@@ -780,8 +825,8 @@ function escHtml(str) {
   return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// Enter-toets in zoekveld
 document.addEventListener('DOMContentLoaded', function() {
+  initApiKey();
   var inp = document.getElementById('search-input');
   if (inp) inp.addEventListener('keydown', function(e){ if (e.key === 'Enter') doFreeSearch(); });
 });
