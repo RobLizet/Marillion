@@ -387,39 +387,69 @@ const BANDS = [
 ];
 
 const OTHER_ALBUMS = [
-  { icon:'🌀', title:'Dark Side of the Moon', artist:'Pink Floyd', year:1973, color:'linear-gradient(135deg,#000,#1a0050)', filter:'Pink Floyd', ytmusic:'https://music.youtube.com/search?q=Pink+Floyd+Dark+Side' },
-  { icon:'💧', title:'Wish You Were Here', artist:'Pink Floyd', year:1975, color:'linear-gradient(135deg,#0a0a20,#1a1a40)', filter:'Pink Floyd', ytmusic:'https://music.youtube.com/search?q=Pink+Floyd+Wish+You+Were+Here' },
-  { icon:'🌊', title:'Fear of a Blank Planet', artist:'Porcupine Tree', year:2007, color:'linear-gradient(135deg,#0a1e2e,#1a3a5c)', filter:'Porcupine Tree', ytmusic:'https://music.youtube.com/search?q=Porcupine+Tree+Fear+Blank+Planet' },
-  { icon:'💀', title:'In Absentia', artist:'Porcupine Tree', year:2002, color:'linear-gradient(135deg,#1e0a0a,#3c1818)', filter:'Porcupine Tree', ytmusic:'https://music.youtube.com/search?q=Porcupine+Tree+In+Absentia' },
-  { icon:'🖐️', title:'Hand Cannot Erase', artist:'Steven Wilson', year:2015, color:'linear-gradient(135deg,#0a0a1e,#18183c)', filter:'Steven Wilson', ytmusic:'https://music.youtube.com/search?q=Steven+Wilson+Hand+Cannot+Erase' },
-  { icon:'🌫️', title:'All Rights Removed', artist:'Airbag', year:2011, color:'linear-gradient(135deg,#0a1e14,#183c28)', filter:'Airbag', ytmusic:'https://music.youtube.com/search?q=Airbag+All+Rights+Removed' },
+  { icon:'🌀', title:'Dark Side of the Moon', artist:'Pink Floyd', itunesQuery:'Pink Floyd Dark Side of the Moon', year:1973, color:'linear-gradient(135deg,#000,#1a0050)', filter:'Pink Floyd', ytmusic:'https://music.youtube.com/search?q=Pink+Floyd+Dark+Side' },
+  { icon:'💧', title:'Wish You Were Here', artist:'Pink Floyd', itunesQuery:'Pink Floyd Wish You Were Here', year:1975, color:'linear-gradient(135deg,#0a0a20,#1a1a40)', filter:'Pink Floyd', ytmusic:'https://music.youtube.com/search?q=Pink+Floyd+Wish+You+Were+Here' },
+  { icon:'🌊', title:'Fear of a Blank Planet', artist:'Porcupine Tree', itunesQuery:'Porcupine Tree Fear of a Blank Planet', year:2007, color:'linear-gradient(135deg,#0a1e2e,#1a3a5c)', filter:'Porcupine Tree', ytmusic:'https://music.youtube.com/search?q=Porcupine+Tree+Fear+Blank+Planet' },
+  { icon:'💀', title:'In Absentia', artist:'Porcupine Tree', itunesQuery:'Porcupine Tree In Absentia', year:2002, color:'linear-gradient(135deg,#1e0a0a,#3c1818)', filter:'Porcupine Tree', ytmusic:'https://music.youtube.com/search?q=Porcupine+Tree+In+Absentia' },
+  { icon:'🖐️', title:'Hand Cannot Erase', artist:'Steven Wilson', itunesQuery:'Steven Wilson Hand Cannot Erase', year:2015, color:'linear-gradient(135deg,#0a0a1e,#18183c)', filter:'Steven Wilson', ytmusic:'https://music.youtube.com/search?q=Steven+Wilson+Hand+Cannot+Erase' },
+  { icon:'🌫️', title:'All Rights Removed', artist:'Airbag', itunesQuery:'Airbag All Rights Removed', year:2011, color:'linear-gradient(135deg,#0a1e14,#183c28)', filter:'Airbag', ytmusic:'https://music.youtube.com/search?q=Airbag+All+Rights+Removed' },
   { icon:'🏔️', title:'Lullabies in a Car Crash', artist:'Bjørn Riis', year:2014, color:'linear-gradient(135deg,#0a141e,#182838)', filter:'Bjørn Riis', ytmusic:'https://music.youtube.com/search?q=Bjorn+Riis+Lullabies' },
-  { icon:'⚡', title:'White Pony', artist:'Deftones', year:2000, color:'linear-gradient(135deg,#1e0a0a,#400a0a)', filter:'Deftones', ytmusic:'https://music.youtube.com/search?q=Deftones+White+Pony' },
-  { icon:'🌸', title:'Brilliant Trees', artist:'David Sylvian', year:1984, color:'linear-gradient(135deg,#1e1400,#3c2a00)', filter:'Sylvian', ytmusic:'https://music.youtube.com/search?q=David+Sylvian+Brilliant+Trees' },
+  { icon:'⚡', title:'White Pony', artist:'Deftones', itunesQuery:'Deftones White Pony', year:2000, color:'linear-gradient(135deg,#1e0a0a,#400a0a)', filter:'Deftones', ytmusic:'https://music.youtube.com/search?q=Deftones+White+Pony' },
+  { icon:'🌸', title:'Brilliant Trees', artist:'David Sylvian', itunesQuery:'David Sylvian Brilliant Trees', year:1984, color:'linear-gradient(135deg,#1e1400,#3c2a00)', filter:'Sylvian', ytmusic:'https://music.youtube.com/search?q=David+Sylvian+Brilliant+Trees' },
 ];
 
-// ══ COVER ART CACHE (JSONP – werkt op Safari/iPhone zonder CORS-blokkade) ══
+// ══ COVER ART – hardcoded iTunes CDN URLs (geen API calls nodig) ══
+const COVER_URLS = {
+  'Marillion Script for a Jesters Tear': 'https://upload.wikimedia.org/wikipedia/en/3/3e/MarillionScriptCover.jpg',
+  'Marillion Fugazi': 'https://upload.wikimedia.org/wikipedia/en/6/6e/Marillion_Fugazi.jpg',
+  'Marillion Misplaced Childhood': 'https://upload.wikimedia.org/wikipedia/en/0/07/Marillion-misplaced-childhood.jpg',
+  'Marillion Clutching at Straws': 'https://upload.wikimedia.org/wikipedia/en/6/64/Marillion-clutching-at-straws.jpg',
+  'Marillion Seasons End 1989': 'https://upload.wikimedia.org/wikipedia/en/f/f9/Marillion_-_Season%27s_End.jpg',
+  'Marillion Holidays in Eden': 'https://upload.wikimedia.org/wikipedia/en/c/c5/Marillion_-_Holidays_in_Eden.jpg',
+  'Marillion Brave 1994': 'https://upload.wikimedia.org/wikipedia/en/e/e8/MarillionBrave.jpg',
+  'Marillion Afraid of Sunlight': 'https://upload.wikimedia.org/wikipedia/en/4/4b/Marillion-afraid-of-sunlight.jpg',
+  'Marillion This Strange Engine': 'https://upload.wikimedia.org/wikipedia/en/b/be/Marillion_-_This_Strange_Engine.jpg',
+  'Marillion Radiation 1998': 'https://upload.wikimedia.org/wikipedia/en/9/95/Marillion_-_Radiation.jpg',
+  'Marillion marillion.com album': 'https://upload.wikimedia.org/wikipedia/en/7/76/Marillion.com_cover.jpg',
+  'Marillion Anoraknophobia': 'https://upload.wikimedia.org/wikipedia/en/2/27/Marillion_-_Anoraknophobia.jpg',
+  'Marillion Marbles': 'https://upload.wikimedia.org/wikipedia/en/7/7b/Marillion_-_Marbles.jpg',
+  'Marillion Somewhere Else 2007': 'https://upload.wikimedia.org/wikipedia/en/4/44/Marillion_-_Somewhere_Else.jpg',
+  'Marillion Happiness Is the Road': 'https://upload.wikimedia.org/wikipedia/en/b/b7/Marillion_-_Happiness_Is_the_Road.jpg',
+  'Marillion Sounds That Cant Be Made': 'https://upload.wikimedia.org/wikipedia/en/d/d8/Marillion_Sounds_That_Cant_Be_Made.jpg',
+  'Marillion FEAR 2016': 'https://upload.wikimedia.org/wikipedia/en/a/a5/Marillion_F_E_A_R.jpg',
+  'Marillion With Friends from the Orchestra': 'https://upload.wikimedia.org/wikipedia/en/2/2f/Marillion_With_Friends_from_the_Orchestra.jpg',
+  'Marillion An Hour Before Its Dark': 'https://upload.wikimedia.org/wikipedia/en/e/e9/Marillion_-_An_Hour_Before_It%27s_Dark.jpg',
+  // Other bands
+  'Pink Floyd Dark Side of the Moon': 'https://upload.wikimedia.org/wikipedia/en/3/3b/Dark_Side_of_the_Moon.png',
+  'Pink Floyd Wish You Were Here': 'https://upload.wikimedia.org/wikipedia/en/a/a4/WishYouWereHere.jpg',
+  'Porcupine Tree Fear of a Blank Planet': 'https://upload.wikimedia.org/wikipedia/en/f/f3/PorcupineTree-FearofaBlankPlanet.jpg',
+  'Porcupine Tree In Absentia': 'https://upload.wikimedia.org/wikipedia/en/e/e5/Porcupinetree_inabsentia.jpg',
+  'Steven Wilson Hand Cannot Erase': 'https://upload.wikimedia.org/wikipedia/en/3/3b/Steven_Wilson_-_Hand_Cannot_Erase.jpg',
+  'Airbag All Rights Removed': 'https://upload.wikimedia.org/wikipedia/en/b/b1/Airbag_All_Rights_Removed.jpg',
+  'Deftones White Pony': 'https://upload.wikimedia.org/wikipedia/en/3/3b/Deftones_-_White_Pony.jpg',
+  'David Sylvian Brilliant Trees': 'https://upload.wikimedia.org/wikipedia/en/e/e4/David_Sylvian_-_Brilliant_Trees.jpg',
+};
+
 const coverCache = {};
 
 function fetchCover(query) {
   if (coverCache[query]) return Promise.resolve(coverCache[query]);
-  return new Promise((resolve) => {
-    const cbName = 'itcb_' + Math.random().toString(36).slice(2);
-    const script = document.createElement('script');
-    const timer = setTimeout(() => { cleanup(); resolve(null); }, 6000);
-    function cleanup() { clearTimeout(timer); delete window[cbName]; if(script.parentNode) script.parentNode.removeChild(script); }
-    window[cbName] = (data) => {
-      cleanup();
+  // Check hardcoded first
+  if (COVER_URLS[query]) {
+    coverCache[query] = COVER_URLS[query];
+    return Promise.resolve(COVER_URLS[query]);
+  }
+  // Fallback: try via corsproxy (works on iPhone Safari)
+  return fetch(`https://corsproxy.io/?${encodeURIComponent('https://itunes.apple.com/search?term=' + encodeURIComponent(query) + '&entity=album&limit=3&media=music')}`)
+    .then(r => r.json())
+    .then(data => {
       if (data.results && data.results.length > 0) {
-        const art = data.results[0].artworkUrl100.replace('100x100bb','600x600bb').replace('100x100bb.jpg','600x600bb.jpg');
-        coverCache[query] = art;
-        resolve(art);
-      } else { resolve(null); }
-    };
-    script.onerror = () => { cleanup(); resolve(null); };
-    script.src = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=album&limit=1&media=music&callback=${cbName}`;
-    document.head.appendChild(script);
-  });
+        const art = data.results[0].artworkUrl100.replace('100x100bb','600x600bb');
+        coverCache[query] = art; return art;
+      }
+      return null;
+    })
+    .catch(() => null);
 }
 
 // ══ RENDER STORY ══
@@ -500,9 +530,17 @@ async function loadCoverIntoElement(elId, query) {
   const container = document.getElementById(elId);
   if (!container) return;
   const url = await fetchCover(query);
-  if (url && document.getElementById(elId)) {
-    container.innerHTML = `<img src="${url}" alt="cover" loading="lazy">`;
-  }
+  if (!url) return;
+  const el = document.getElementById(elId);
+  if (!el) return;
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = () => {
+    const el2 = document.getElementById(elId);
+    if (el2) el2.innerHTML = '<img src="' + url + '" alt="cover" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:0;">';
+  };
+  img.onerror = () => {};
+  img.src = url;
 }
 
 // ══ ALBUM MODAL ══
@@ -565,7 +603,7 @@ function renderOtherAlbums(filter = 'Alles') {
       </div>`;
     card.onclick = () => { window.open(a.ytmusic, '_blank'); };
     list.appendChild(card);
-    loadCoverIntoElement(elId, `${a.artist} ${a.title}`);
+    loadCoverIntoElement(elId, a.itunesQuery || `${a.artist} ${a.title}`);
   });
 }
 
