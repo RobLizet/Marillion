@@ -223,7 +223,10 @@ canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
 .np-btn.np-close { border-color: var(–border); background: var(–card); color: var(–dim); font-size: 11px; }
 .np-btn.np-next { font-size: 15px; }
 .np-btn:disabled { opacity: 0.3; }
-/* extra bottom padding when now-playing bar is visible */
+.np-platform-toggle { display: flex; border: 1px solid rgba(200,168,74,0.3); border-radius: 20px; overflow: hidden; }
+.np-plat { padding: 6px 10px; font-family: ‘DM Mono’, monospace; font-size: 9px; letter-spacing: 0.08em; background: transparent; border: none; color: var(–dim); cursor: pointer; transition: all 0.2s; }
+.np-plat.active { background: rgba(200,168,74,0.2); color: var(–gold2); }
+.np-plat#np-plat-sp.active { background: rgba(29,185,84,0.2); color: #1db954; border-color: rgba(29,185,84,0.4); }
 body.has-np .screen { padding-bottom: calc(var(–tab-h) + var(–safe-b) + 64px + 24px); }
 .pl-section-label { font-family: ‘DM Mono’, monospace; font-size: 8px; letter-spacing: 0.25em; color: var(–dim); text-transform: uppercase; margin-bottom: 8px; }
 .pl-mood-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -463,6 +466,10 @@ body.has-np .screen { padding-bottom: calc(var(–tab-h) + var(–safe-b) + 64px
     <div class="np-artist" id="np-artist">—</div>
   </div>
   <div class="np-controls">
+    <div class="np-platform-toggle">
+      <button class="np-plat active" id="np-plat-yt" onclick="npSetPlatform('yt')">YT</button>
+      <button class="np-plat" id="np-plat-sp" onclick="npSetPlatform('sp')">SP</button>
+    </div>
     <button class="np-btn" onclick="npPlayCurrent()" title="Speel huidig nummer">▶</button>
     <button class="np-btn np-next" onclick="npNext()" title="Volgende nummer" id="np-next-btn">⏭</button>
     <button class="np-btn np-close" onclick="npClose()" title="Sluiten">✕</button>
@@ -935,6 +942,14 @@ document.addEventListener('DOMContentLoaded', function() {
 // ══ NOW PLAYING ══
 var _npTracks = [];
 var _npIdx = 0;
+var _npPlatform = localStorage.getItem('np_platform') || 'yt'; // 'yt' or 'sp'
+
+function npSetPlatform(p) {
+  _npPlatform = p;
+  localStorage.setItem('np_platform', p);
+  document.getElementById('np-plat-yt').classList.toggle('active', p === 'yt');
+  document.getElementById('np-plat-sp').classList.toggle('active', p === 'sp');
+}
 
 // Zoek via Piped API het YouTube-video met de meeste views
 async function findYouTubeVideo(artist, title) {
@@ -953,19 +968,19 @@ async function findYouTubeVideo(artist, title) {
         return v.url && v.type === 'stream' && v.duration > 60;
       });
       if (!items.length) continue;
-      // Neem video met meeste views
       items.sort(function(a, b) { return (b.views || 0) - (a.views || 0); });
       var best = items[0];
       return 'https://music.youtube.com/watch' + best.url.replace('/watch', '');
     } catch(e) {}
   }
-  // Fallback: YT Music zoeken
   return 'https://music.youtube.com/search?q=' + encodeURIComponent(artist + ' ' + title);
 }
 
 function npStart(tracks, startIdx) {
   _npTracks = tracks;
   _npIdx = startIdx || 0;
+  // herstel platform toggle visueel
+  npSetPlatform(_npPlatform);
   npUpdate();
   npPlayCurrent();
 }
@@ -984,7 +999,15 @@ function npUpdate() {
 async function npPlayCurrent() {
   var t = _npTracks[_npIdx];
   if (!t) return;
-  // Open window SYNCHROON (direct bij tap) — iOS blokkeert window.open na await
+
+  if (_npPlatform === 'sp') {
+    // Spotify: direct openen, geen async nodig
+    var spUrl = 'https://open.spotify.com/search/' + encodeURIComponent(t.artist + ' ' + t.title);
+    window.open(spUrl, '_blank');
+    return;
+  }
+
+  // YouTube via Piped — open window synchroon
   var win = window.open('', '_blank');
   document.getElementById('np-track').textContent = '⏳ ' + t.title;
   var url = await findYouTubeVideo(t.artist, t.title);
