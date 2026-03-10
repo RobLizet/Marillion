@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Marillion Universe</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #05070e;
+  --card: rgba(255,255,255,0.04);
+  --border: rgba(255,255,255,0.08);
+  --gold: #c8a84a;
+  --gold2: #e2c878;
+  --crimson2: #c0394f;
+  --teal: #3ab0b8;
+  --text: #ede5d8;
+  --muted: rgba(237,229,216,0.45);
+  --dim: rgba(237,229,216,0.22);
+  --tab-h: 68px;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; }
+body { background: var(--bg); color: var(--text); font-family: 'Crimson Pro', serif; font-size: 16px; position: fixed; width: 100%; height: 100%; }
+canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+
+.screen { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; z-index: 1; padding-bottom: calc(var(–tab-h) + var(–safe-b) + 24px); display: none; -webkit-overflow-scrolling: touch; }
+.screen.active { display: block; }
+
+.tab-bar { position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; height: calc(var(–tab-h) + var(–safe-b)); background: rgba(5,7,14,0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid rgba(200,168,74,0.2); display: flex; align-items: flex-start; padding-top: 10px; }
+.tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; padding: 4px 0; }
+.tab-icon { font-size: 20px; line-height: 1; filter: grayscale(0.6) opacity(0.5); transition: filter 0.3s, transform 0.3s; }
+.tab-label { font-family: ‘DM Mono’, monospace; font-size: 8.5px; letter-spacing: 0.12em; color: var(–dim); text-transform: uppercase; transition: color 0.3s; }
+.tab.active .tab-icon { filter: none; transform: scale(1.1); }
+.tab.active .tab-label { color: var(–gold); }
+
+.page-header { padding: 52px 22px 0; }
+.eyebrow { font-family: ‘DM Mono’, monospace; font-size: 9px; letter-spacing: 0.3em; color: var(–teal); text-transform: uppercase; margin-bottom: 10px; animation: fadeUp 0.7s 0.1s both; }
+.page-header h1 { font-family: ‘Cinzel’, serif; font-size: 34px; font-weight: 700; letter-spacing: 0.05em; line-height: 1.1; background: linear-gradient(135deg, #fff 0%, var(–gold2) 45%, var(–gold) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: fadeUp 0.7s 0.2s both; }
+.page-header p { color: var(–muted); font-style: italic; font-size: 15px; margin-top: 6px; line-height: 1.5; animation: fadeUp 0.7s 0.3s both; }
+.divider { width: 100%; height: 1px; background: linear-gradient(90deg, transparent, var(–gold), rgba(200,168,74,0.3), transparent); margin: 18px 0; }
+
+/* HERO */
+.hero-card { margin: 0 16px; background: linear-gradient(135deg, #0e1428 0%, #121d3a 50%, #0a1020 100%); border: 1px solid rgba(200,168,74,0.3); border-radius: 18px; overflow: hidden; position: relative; animation: fadeUp 0.7s 0.4s both; }
+.hero-card::before { content: ‘’; position: absolute; top: -40px; right: -40px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(200,168,74,0.12) 0%, transparent 70%); pointer-events: none; }
+.hero-inner { padding: 24px 22px 20px; }
+.hero-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(200,168,74,0.12); border: 1px solid rgba(200,168,74,0.3); color: var(–gold); font-family: ‘DM Mono’, monospace; font-size: 9px; letter-spacing: 0.18em; padding: 4px 12px; border-radius: 20px; margin-bottom: 14px; text-transform: uppercase; }
+.hero-name { font-family: ‘Cinzel’, serif; font-size: 40px; font-weight: 700; letter-spacing: 0.06em; background: linear-gradient(180deg, #fff 0%, var(–gold2) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; }
+.hero-sub { font-family: ‘DM Mono’, monospace; font-size: 10px; letter-spacing: 0.2em; color: var(–teal); margin-top: 4px; text-transform: uppercase; }
+.hero-desc { color: var(–muted); font-style: italic; font-size: 14.5px; line-height: 1.65; margin-top: 12px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 12px; }
+
+/* VERHAAL */
+.section-label { padding: 22px 22px 10px; font-family: ‘DM Mono’, monospace; font-size: 9px; letter-spacing: 0.25em; color: var(–gold); text-transform: uppercase; }
+.story-block { margin: 0 16px 6px; }
+.story-card { background: var(–card); border: 1px solid var(–border); border-radius: 14px; padding: 18px 18px; margin-bottom: 10px; cursor: pointer; transition: border-color 0.2s; }
+.story-card.open { border-color: rgba(200,168,74,0.3); }
+.story-card-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.story-era-badge { display: inline-flex; align-items: center; gap: 8px; }
+.story-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.story-era-title { font-family: ‘Cinzel’, serif; font-size: 14px; letter-spacing: 0.04em; }
+.story-years { font-family: ‘DM Mono’, monospace; font-size: 9px; color: var(–teal); letter-spacing: 0.15em; }
+.story-chevron { font-size: 11px; color: var(–dim); transition: transform 0.3s; }
+.story-card.open .story-chevron { transform: rotate(180deg); }
+.story-body { overflow: hidden; max-height: 0; transition: max-height 0.4s ease; }
+.story-card.open .story-body { max-height: 600px; }
+.story-text { color: var(–muted); font-size: 14.5px; line-height: 1.75; padding-top: 14px; border-top: 1px solid var(–border); margin-top: 12px; }
+.story-text em { color: var(–gold2); font-style: normal; }
+
+/* FACTS */
+.facts-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 0 16px 4px; }
+.fact-card { background: var(–card); border: 1px solid var(–border); border-radius: 12px; padding: 14px 12px; text-align: center; }
+.fact-num { font-family: ‘Cinzel’, serif; font-size: 20px; color: var(–gold2); font-weight: 600; }
+.fact-lbl { font-family: ‘DM Mono’, monospace; font-size: 8px; color: var(–dim); letter-spacing: 0.1em; margin-top: 3px; text-transform: uppercase; }
+
+/* QUOTE */
+.quote-block { margin: 14px 16px 6px; background: linear-gradient(135deg, rgba(139,26,46,0.15), rgba(139,26,46,0.05)); border-left: 3px solid var(–crimson2); border-radius: 0 12px 12px 0; padding: 16px 18px; font-style: italic; font-size: 15px; line-height: 1.7; color: var(–muted); }
+.quote-block span { display: block; font-style: normal; font-family: ‘DM Mono’, monospace; font-size: 9px; letter-spacing: 0.15em; color: var(–crimson2); margin-top: 8px; text-transform: uppercase; }
+
+/* DISCOGRAFIE */
+.disco-filters { display: flex; gap: 7px; padding: 16px 16px 4px; overflow-x: auto; scrollbar-width: none; }
+.disco-filters::-webkit-scrollbar { display: none; }
+.disco-pill { flex-shrink: 0; padding: 6px 14px; border-radius: 20px; border: 1px solid var(–border); background: var(–card); font-family: ‘DM Mono’, monospace; font-size: 9px; letter-spacing: 0.1em; color: var(–muted); cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+.disco-pill.on { background: rgba(200,168,74,0.12); border-color: rgba(200,168,74,0.4); color: var(–gold); }
+
+.disco-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 8px 16px 16px; }
+.disco-card { background: var(–card); border: 1px solid var(–border); border-radius: 13px; overflow: hidden; cursor: pointer; transition: transform 0.15s; }
+.disco-card:active { transform: scale(0.96); }
+.disco-cover { width: 100%; aspect-ratio: 1; background: #0d1123; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.disco-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.disco-cover .cover-placeholder { font-size: 40px; opacity: 0.5; }
+.disco-info { padding: 10px 12px 12px; }
+.disco-title { font-family: ‘Cinzel’, serif; font-size: 12px; letter-spacing: 0.03em; line-height: 1.3; }
+.disco-year { font-family: ‘DM Mono’, monospace; font-size: 9px; color: var(–teal); margin-top: 3px; }
+.disco-era-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-left: 6px; vertical-align: middle; }
+
+/* ALBUM MODAL */
+.album-modal-overlay { position: fixed; inset: 0; z-index: 200; background: rgba(5,7,14,0.88); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); display: none; align-items: flex-end; justify-content: center; padding-bottom: calc(var(–tab-h) + var(–safe-b)); }
+.album-modal-overlay.open { display: flex; }
+.album-modal-sheet { width: 100%; max-height: 85vh; background: #0d1123; border: 1px solid rgba(200,168,74,0.25); border-radius: 22px 22px 0 0; overflow-y: auto; padding-bottom: 30px; animation: slideUp 0.35s cubic-bezier(0.16,1,0.3,1); }
+.amodal-handle { width: 36px; height: 4px; background: var(–border); border-radius: 2px; margin: 14px auto 0; }
+.amodal-cover { width: 160px; height: 160px; border-radius: 12px; overflow: hidden; margin: 20px auto 0; border: 1px solid var(–border); background: #0a1020; display: flex; align-items: center; justify-content: center; font-size: 60px; }
+.amodal-cover img { width: 100%; height: 100%; object-fit: cover; }
+.amodal-title { font-family: ‘Cinzel’, serif; font-size: 22px; font-weight: 700; text-align: center; padding: 16px 22px 2px; background: linear-gradient(135deg, #fff, var(–gold2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.amodal-year { font-family: ‘DM Mono’, monospace; font-size: 10px; color: var(–teal); text-align: center; letter-spacing: 0.2em; margin-bottom: 16px; }
+.amodal-body { padding: 0 22px; }
+.amodal-section { font-family: ‘DM Mono’, monospace; font-size: 9px; letter-spacing: 0.25em; color: var(–gold); text-transform: uppercase; margin: 16px 0 8px; }
+.amodal-text { font-size: 15px; line-height: 1.7; color: var(–muted); font-style: italic; }
+.track-list { list-style: none; }
+.track-item { display: flex; align-items: baseline; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(–border); }
+.track-num { font-family: ‘DM Mono’, monospace; font-size: 9px; color: var(–dim); width: 18px; flex-shrink: 0; }
+.track-name { font-size: 14.5px; color: var(–muted); }
+.track-name.highlight { color: var(–gold2); font-style: italic; }
+.amodal-btns { display: flex; gap: 8px; margin-top: 20px; }
+.amodal-btn { flex: 1; padding: 11px 0; border-radius: 10px; border: 1px solid var(–border); background: var(–card); color: var(–text); font-family: ‘DM Mono’, monospace; font-size: 10px; letter-spacing: 0.1em; text-align: center; cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.amodal-btn.primary { background: rgba(200,168,74,0.12); border-color: rgba(200,168,74,0.35); color: var(–gold2); }
+.amodal-close { display: flex; width: 32px; height: 32px; background: var(–card); border: 1px solid var(–border); border-radius: 50%; margin: 14px 20px 0 auto; align-items: center; justify-content: center; font-size: 14px; color: var(–muted); cursor: pointer; }
+
+/* BANDS */
+.bands-grid { padding: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.band-card { background: var(–card); border: 1px solid var(–border); border-radius: 14px; padding: 18px 15px 15px; cursor: pointer; position: relative; overflow: hidden; transition: transform 0.15s; }
+.band-card:active { transform: scale(0.96); }
+.band-top-bar { position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+.band-icon { font-size: 30px; margin-bottom: 9px; display: block; }
+.band-name { font-family: ‘Cinzel’, serif; font-size: 12.5px; letter-spacing: 0.04em; line-height: 1.25; }
+.band-genre { font-family: ‘DM Mono’, monospace; font-size: 8px; color: var(–dim); margin-top: 4px; letter-spacing: 0.1em; text-transform: uppercase; }
+.band-connection { margin-top: 8px; font-size: 12px; color: var(–muted); font-style: italic; line-height: 1.4; border-top: 1px solid var(–border); padding-top: 8px; }
+
+/* BAND MODAL */
+.modal-overlay { position: fixed; inset: 0; z-index: 200; background: rgba(5,7,14,0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: none; align-items: flex-end; justify-content: center; padding-bottom: calc(var(–tab-h) + var(–safe-b)); }
+.modal-overlay.open { display: flex; }
+.modal-sheet { width: 100%; max-height: 80vh; background: #0d1123; border: 1px solid rgba(200,168,74,0.25); border-radius: 22px 22px 0 0; overflow-y: auto; padding: 0 0 30px; animation: slideUp 0.35s cubic-bezier(0.16,1,0.3,1); }
+.modal-handle { width: 36px; height: 4px; background: var(–border); border-radius: 2px; margin: 14px auto 20px; }
+.modal-close { float: right; width: 30px; height: 30px; background: var(–card); border: 1px solid var(–border); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; color: var(–muted); margin: 0 20px 0 0; }
+.modal-header { padding: 0 22px 18px; overflow: hidden; }
+.modal-icon { font-size: 48px; margin-bottom: 10px; display: block; }
+.modal-name { font-family: ‘Cinzel’, serif; font-size: 26px; font-weight: 700; background: linear-gradient(135deg, #fff, var(–gold2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.modal-sub { font-family: ‘DM Mono’, monospace; font-size: 9px; letter-spacing: 0.2em; color: var(–teal); margin-top: 3px; text-transform: uppercase; }
+.modal-body { padding: 0 22px; }
+.modal-section-title { font-family: ‘DM Mono’, monospace; font-size: 9px; letter-spacing: 0.25em; color: var(–gold); text-transform: uppercase; margin-bottom: 8px; margin-top: 18px; }
+.modal-text { font-size: 15px; line-height: 1.7; color: var(–muted); font-style: italic; }
+.modal-link-row { display: flex; gap: 8px; margin-top: 20px; }
+.modal-btn { flex: 1; padding: 11px 0; border-radius: 10px; border: 1px solid var(–border); background: var(–card); color: var(–text); font-family: ‘DM Mono’, monospace; font-size: 10px; letter-spacing: 0.1em; text-align: center; cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.modal-btn.primary { background: rgba(200,168,74,0.12); border-color: rgba(200,168,74,0.35); color: var(–gold2); }
+.rec-chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 8px; }
+.rec-chip { padding: 5px 12px; background: rgba(74,176,184,0.08); border: 1px solid rgba(74,176,184,0.2); border-radius: 20px; font-family: ‘DM Mono’, monospace; font-size: 9px; color: var(–teal); letter-spacing: 0.08em; }
+
+/* DISCOVER */
+.discover-wrap { padding: 16px 16px 120px; }
+.discover-hero { background: linear-gradient(135deg, #100818, #0e1428, #0a1018); border: 1px solid rgba(200,168,74,0.2); border-radius: 18px; padding: 22px 20px; margin-bottom: 14px; }
+.discover-hero h2 { font-family: ‘Cinzel’, serif; font-size: 20px; font-weight: 600; letter-spacing: 0.05em; background: linear-gradient(135deg, #fff, var(–gold2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 6px; }
+.discover-hero p { font-style: italic; font-size: 14px; color: var(–muted); line-height: 1.6; }
+.mood-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 14px; }
+.mood-btn { padding: 16px 14px; background: var(–card); border: 1px solid var(–border); border-radius: 13px; cursor: pointer; transition: all 0.2s; text-align: left; }
+.mood-btn.selected { background: rgba(200,168,74,0.1); border-color: rgba(200,168,74,0.35); }
+.mood-icon { font-size: 24px; margin-bottom: 6px; display: block; }
+.mood-title { font-family: ‘Cinzel’, serif; font-size: 12.5px; letter-spacing: 0.03em; }
+.mood-sub { font-family: ‘DM Mono’, monospace; font-size: 8px; color: var(–dim); margin-top: 3px; letter-spacing: 0.1em; text-transform: uppercase; }
+.ai-response { background: var(–card); border: 1px solid var(–border); border-radius: 14px; padding: 18px; display: none; }
+.ai-response.show { display: block; }
+.ai-response-label { font-family: ‘DM Mono’, monospace; font-size: 8.5px; letter-spacing: 0.2em; color: var(–teal); text-transform: uppercase; margin-bottom: 10px; }
+.ai-response-text { font-size: 15px; line-height: 1.75; color: var(–muted); font-style: italic; }
+.ai-loading { display: flex; gap: 6px; align-items: center; padding: 4px 0; }
+
+/* API KEY */
+.apikey-block { background: linear-gradient(135deg,rgba(200,168,74,0.06),rgba(200,168,74,0.02)); border: 1px solid rgba(200,168,74,0.2); border-radius: 14px; padding: 18px; margin-bottom: 16px; }
+.apikey-block.hidden { display: none; }
+.apikey-icon { font-size: 22px; margin-bottom: 6px; }
+.apikey-title { font-family: ‘Cinzel’, serif; font-size: 14px; letter-spacing: 0.04em; margin-bottom: 2px; }
+.apikey-sub { font-family: ‘DM Mono’, monospace; font-size: 8.5px; color: var(–dim); letter-spacing: 0.1em; margin-bottom: 12px; text-transform: uppercase; }
+.apikey-input-row { display: flex; gap: 8px; }
+.apikey-status { font-family: ‘DM Mono’, monospace; font-size: 9px; margin-top: 8px; letter-spacing: 0.1em; min-height: 14px; }
+.apikey-status.ok { color: #4ab88a; }
+.apikey-status.err { color: var(–crimson2); }
+/* CHIPS LABEL */
+.chips-section-label { font-family: ‘DM Mono’, monospace; font-size: 8px; letter-spacing: 0.25em; color: var(–dim); text-transform: uppercase; padding: 10px 2px 4px; }
+.search-divider { display: flex; align-items: center; gap: 10px; margin: 20px 0 16px; }
+.search-divider-line { flex: 1; height: 1px; background: var(–border); }
+.search-divider-label { font-family: ‘DM Mono’, monospace; font-size: 8.5px; letter-spacing: 0.2em; color: var(–dim); text-transform: uppercase; white-space: nowrap; }
+.search-hero { background: linear-gradient(135deg, #0e1428, #0a1018); border: 1px solid rgba(200,168,74,0.15); border-radius: 14px; padding: 16px 18px; margin-bottom: 12px; }
+.search-hero h2 { font-family: ‘Cinzel’, serif; font-size: 16px; font-weight: 600; background: linear-gradient(135deg, #fff, var(–gold2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 5px; }
+.search-hero p { font-style: italic; font-size: 13px; color: var(–dim); line-height: 1.5; }
+.search-input-wrap { display: flex; gap: 8px; margin-bottom: 10px; }
+.search-input { flex: 1; background: var(–card); border: 1px solid var(–border); border-radius: 12px; padding: 12px 14px; color: var(–text); font-family: ‘Crimson Pro’, serif; font-size: 14px; outline: none; -webkit-appearance: none; }
+.search-input:focus { border-color: rgba(200,168,74,0.4); }
+.search-input::placeholder { color: var(–dim); font-style: italic; }
+.search-btn { background: rgba(200,168,74,0.15); border: 1px solid rgba(200,168,74,0.35); border-radius: 12px; color: var(–gold2); font-family: ‘DM Mono’, monospace; font-size: 16px; padding: 0 16px; cursor: pointer; flex-shrink: 0; transition: background 0.2s; }
+.search-btn:active { background: rgba(200,168,74,0.28); }
+.search-chips-row { display: flex; gap: 7px; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px; margin-bottom: 14px; }
+.search-chips-row::-webkit-scrollbar { display: none; }
+.search-chip { flex-shrink: 0; padding: 5px 12px; background: rgba(58,176,184,0.07); border: 1px solid rgba(58,176,184,0.2); border-radius: 20px; font-family: ‘DM Mono’, monospace; font-size: 8.5px; color: var(–teal); letter-spacing: 0.08em; cursor: pointer; white-space: nowrap; transition: background 0.2s; }
+.search-chip:active { background: rgba(58,176,184,0.18); }
+.search-results { display: none; }
+.search-results.show { display: block; }
+.search-result-label { font-family: ‘DM Mono’, monospace; font-size: 8.5px; letter-spacing: 0.2em; color: var(–teal); text-transform: uppercase; margin-bottom: 10px; }
+.search-result-card { background: var(–card); border: 1px solid var(–border); border-radius: 13px; padding: 14px 16px; margin-bottom: 8px; cursor: pointer; transition: border-color 0.2s; }
+.search-result-card:active { border-color: rgba(200,168,74,0.3); }
+.src-title { font-family: ‘Cinzel’, serif; font-size: 14px; letter-spacing: 0.03em; margin-bottom: 2px; }
+.src-artist { font-family: ‘DM Mono’, monospace; font-size: 9px; color: var(–teal); letter-spacing: 0.1em; margin-bottom: 6px; text-transform: uppercase; }
+.src-why { font-size: 13px; color: var(–muted); font-style: italic; line-height: 1.55; }
+.src-links { display: flex; gap: 6px; margin-top: 10px; }
+.src-link { padding: 6px 12px; background: var(–card); border: 1px solid var(–border); border-radius: 8px; font-family: ‘DM Mono’, monospace; font-size: 9px; color: var(–muted); text-decoration: none; letter-spacing: 0.08em; }
+.ai-dot { width: 6px; height: 6px; background: var(–gold); border-radius: 50%; animation: pulse 1.2s infinite; }
+.ai-dot:nth-child(2) { animation-delay: 0.2s; }
+.ai-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slideUp { from { transform: translateY(60px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes pulse { 0%,100% { opacity: 0.3; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.2); } }
+.pt-safe { padding-top: calc(env(safe-area-inset-top, 0px) + 12px); }
+.spin { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* NOW PLAYING BAR */
+.now-playing-bar { position: fixed; bottom: calc(var(–tab-h) + var(–safe-b)); left: 0; right: 0; z-index: 99; background: linear-gradient(135deg, #0e1830, #0a1020); border-top: 1px solid rgba(200,168,74,0.35); display: flex; align-items: center; padding: 10px 14px; gap: 10px; animation: slideUp 0.3s ease; }
+.np-info { flex: 1; min-width: 0; cursor: pointer; }
+.np-track { font-family: ‘Cinzel’, serif; font-size: 13px; letter-spacing: 0.03em; color: var(–text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.np-artist { font-family: ‘DM Mono’, monospace; font-size: 8px; color: var(–teal); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.np-controls { display: flex; gap: 6px; flex-shrink: 0; }
+.np-btn { width: 34px; height: 34px; border-radius: 50%; border: 1px solid rgba(200,168,74,0.3); background: rgba(200,168,74,0.1); color: var(–gold2); font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+.np-btn:active { background: rgba(200,168,74,0.28); }
+.np-btn.np-close { border-color: var(–border); background: var(–card); color: var(–dim); font-size: 11px; }
+.np-btn.np-next { font-size: 15px; }
+.np-btn:disabled { opacity: 0.3; }
+/* extra bottom padding when now-playing bar is visible */
+body.has-np .screen { padding-bottom: calc(var(–tab-h) + var(–safe-b) + 64px + 24px); }
+.pl-section-label { font-family: ‘DM Mono’, monospace; font-size: 8px; letter-spacing: 0.25em; color: var(–dim); text-transform: uppercase; margin-bottom: 8px; }
+.pl-mood-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.pl-mood { background: var(–card); border: 1px solid var(–border); border-radius: 12px; padding: 13px 14px; font-family: ‘Cinzel’, serif; font-size: 12.5px; letter-spacing: 0.03em; cursor: pointer; transition: all 0.2s; }
+.pl-mood.active { background: rgba(200,168,74,0.12); border-color: rgba(200,168,74,0.45); color: var(–gold2); }
+.pl-genre-chip.active { background: rgba(200,168,74,0.12); border-color: rgba(200,168,74,0.4); color: var(–gold); }
+.pl-generate-btn { width: 100%; margin: 18px 0 20px; padding: 15px; background: linear-gradient(135deg, rgba(200,168,74,0.18), rgba(200,168,74,0.08)); border: 1px solid rgba(200,168,74,0.4); border-radius: 14px; color: var(–gold2); font-family: ‘Cinzel’, serif; font-size: 14px; letter-spacing: 0.08em; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: background 0.2s; }
+.pl-generate-btn:active { background: rgba(200,168,74,0.28); }
+.pl-generate-btn:disabled { opacity: 0.5; }
+.pl-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.pl-title { font-family: ‘Cinzel’, serif; font-size: 15px; letter-spacing: 0.04em; background: linear-gradient(135deg,#fff,var(–gold2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.pl-count { font-family: ‘DM Mono’, monospace; font-size: 9px; color: var(–dim); letter-spacing: 0.1em; }
+.pl-track { display: flex; align-items: flex-start; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(–border); cursor: pointer; }
+.pl-track:last-child { border-bottom: none; }
+.pl-num { font-family: ‘DM Mono’, monospace; font-size: 10px; color: var(–dim); width: 20px; flex-shrink: 0; padding-top: 3px; text-align: right; }
+.pl-track-info { flex: 1; min-width: 0; }
+.pl-track-title { font-size: 14.5px; color: var(–text); line-height: 1.3; }
+.pl-track-artist { font-family: ‘DM Mono’, monospace; font-size: 8.5px; color: var(–teal); letter-spacing: 0.1em; margin-top: 3px; text-transform: uppercase; }
+.pl-track-why { font-size: 12px; color: var(–dim); font-style: italic; margin-top: 3px; line-height: 1.4; }
+.pl-track-link { flex-shrink: 0; display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; background: rgba(200,168,74,0.08); border: 1px solid rgba(200,168,74,0.2); border-radius: 50%; font-size: 13px; color: var(–gold2); pointer-events: none; }
+.pl-regen-btn { width: 100%; margin-top: 16px; padding: 11px; background: var(–card); border: 1px solid var(–border); border-radius: 20px; font-family: ‘DM Mono’, monospace; font-size: 9px; color: var(–muted); letter-spacing: 0.1em; cursor: pointer; text-align: center; }
+.pl-play-all-btn { width: 100%; margin-bottom: 12px; padding: 14px; background: linear-gradient(135deg, rgba(200,168,74,0.22), rgba(200,168,74,0.10)); border: 1px solid rgba(200,168,74,0.5); border-radius: 14px; color: var(–gold2); font-family: ‘Cinzel’, serif; font-size: 14px; letter-spacing: 0.1em; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.pl-play-all-btn:active { background: rgba(200,168,74,0.32); }
+.pl-track.np-active { background: rgba(200,168,74,0.07); border-radius: 8px; }
+.pl-track.np-active .pl-num { color: var(–gold); }
+.pl-track.np-active .pl-track-title { color: var(–gold2); }
+.pl-track.np-active .pl-track-link { background: rgba(200,168,74,0.22); border-color: rgba(200,168,74,0.5); }
+</style>
+
+</head>
+<body>
+<canvas id="bg"></canvas>
+
+<!-- SCREEN 1: MARILLION -->
+
+<div class="screen active" id="s-home">
+<div class="pt-safe"></div>
+<div class="page-header">
+  <div class="eyebrow">★ Jouw Rode Draad</div>
+  <h1>Marillion<br>Universe</h1>
+  <p>De muziek die alles verbindt</p>
+  <div class="divider"></div>
+</div>
+
+<div class="hero-card">
+  <div class="hero-inner">
+    <div class="hero-badge">⭐ Favoriete Band</div>
+    <div class="hero-name">MARILLION</div>
+    <div class="hero-sub">Neo-Progressive Rock · 1979–heden</div>
+    <div class="hero-desc">Eén van de meest visionaire prog-bands van de afgelopen veertig jaar. Van de theatrale Fish-era tot de emotionele diepgang van Steve Hogarth — 45 jaar muziek zonder artistieke compromissen.</div>
+  </div>
+</div>
+
+<div class="facts-row" style="margin-top:16px">
+  <div class="fact-card"><div class="fact-num">20</div><div class="fact-lbl">Studio Albums</div></div>
+  <div class="fact-card"><div class="fact-num">45</div><div class="fact-lbl">Jaar muziek</div></div>
+  <div class="fact-card"><div class="fact-num">2</div><div class="fact-lbl">Zangers</div></div>
+</div>
+
+<div class="section-label">Het Verhaal</div>
+<div class="story-block" id="story-block"></div>
+
+<div class="quote-block">
+  "Kayleigh, is it too late to say I'm sorry?" — één van de meest herkenbare openingsregels in de Britse rock.
+  <span>— Fish, Misplaced Childhood (1985)</span>
+</div>
+
+<div class="section-label">Discografie</div>
+<div class="disco-filters" id="disco-filters"></div>
+<div class="disco-grid" id="disco-grid"></div>
+</div>
+
+<!-- SCREEN 2: BANDS -->
+
+<div class="screen" id="s-bands">
+<div class="pt-safe"></div>
+<div class="page-header">
+  <div class="eyebrow">Verwante Muziek</div>
+  <h1>Bands &amp;<br>Artiesten</h1>
+  <p>Verbonden via geest en klank</p>
+  <div class="divider"></div>
+</div>
+<div class="bands-grid" id="bands-grid"></div>
+</div>
+
+<!-- SCREEN 3: ALBUMS -->
+
+<div class="screen" id="s-albums">
+<div class="pt-safe"></div>
+<div class="page-header">
+  <div class="eyebrow">Tijdloze Platen</div>
+  <h1>Must-Listen<br>Albums</h1>
+  <p>De kroonjuwelen van prog</p>
+  <div class="divider"></div>
+</div>
+<div class="disco-filters" id="album-filters"></div>
+<div style="padding:8px 16px 16px" id="albums-list-wrap">
+  <div id="albums-list" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"></div>
+</div>
+</div>
+
+<!-- SCREEN 4: ONTDEK -->
+
+<div class="screen" id="s-discover">
+<div class="pt-safe"></div>
+<div class="page-header">
+  <div class="eyebrow">AI-Gids</div>
+  <h1>Ontdek<br>Meer</h1>
+  <p>Verken de wereld buiten je collectie</p>
+  <div class="divider"></div>
+</div>
+<div class="discover-wrap">
+
+  <!-- API KEY SECTIE -->
+
+  <div class="apikey-block" id="apikey-block">
+    <div class="apikey-icon">🔑</div>
+    <div class="apikey-title">Anthropic API-sleutel</div>
+    <div class="apikey-sub">Eenmalig invoeren — wordt lokaal bewaard</div>
+    <div class="apikey-input-row">
+      <input type="password" id="apikey-input" class="search-input" placeholder="sk-ant-…" autocomplete="off" autocorrect="off" spellcheck="false" />
+      <button class="search-btn" onclick="saveApiKey()">✓</button>
+    </div>
+    <div id="apikey-status" class="apikey-status"></div>
+  </div>
+
+  <!-- ZOEKBOX -->
+
+  <div class="search-hero">
+    <h2>Zoek in de muziekwereld</h2>
+    <p>Typ een genre, artiest, stemming of vergelijking — de AI zoekt 5 aanbevelingen buiten je vaste collectie.</p>
+  </div>
+
+  <div class="search-input-wrap">
+    <input type="text" id="search-input" class="search-input" placeholder="bijv. 'zoals Brave maar donkerder'…" maxlength="200" />
+    <button class="search-btn" id="search-btn" onclick="doFreeSearch()">
+      <span id="search-btn-text">↵</span>
+    </button>
+  </div>
+
+  <!-- SNELKNOPPEN - RIJ 1: STEMMINGEN -->
+
+  <div class="chips-section-label">STEMMING</div>
+  <div class="search-chips-row">
+    <div class="search-chip" onclick="fillSearch('prog rock melancholisch en emotioneel')">🌧 melancholisch</div>
+    <div class="search-chip" onclick="fillSearch('prog rock donker en zwaar en duister')">🖤 donker</div>
+    <div class="search-chip" onclick="fillSearch('dromerig atmosferisch ambient prog')">🌌 dromerig</div>
+    <div class="search-chip" onclick="fillSearch('episch en avontuurlijk orkestrale prog')">🏔 episch</div>
+    <div class="search-chip" onclick="fillSearch('rustig meditatief en intiem prog rock')">🕯 intiem</div>
+    <div class="search-chip" onclick="fillSearch('energiek en intensief progressief rock')">⚡ intensief</div>
+  </div>
+
+  <!-- SNELKNOPPEN - RIJ 2: GENRES -->
+
+  <div class="chips-section-label">GENRE</div>
+  <div class="search-chips-row">
+    <div class="search-chip" onclick="fillSearch('psychedelische rock jaren 70 en 80')">🌀 psychedelisch</div>
+    <div class="search-chip" onclick="fillSearch('neofolk melancholisch Skandinavisch')">🌲 neofolk</div>
+    <div class="search-chip" onclick="fillSearch('ambient post-rock instrumentaal filmisch')">🎞 post-rock</div>
+    <div class="search-chip" onclick="fillSearch('art rock jaren 80 Brits avantgarde')">🎨 art rock 80s</div>
+    <div class="search-chip" onclick="fillSearch('math rock emotioneel complex gitaarwerk')">🧮 math rock</div>
+    <div class="search-chip" onclick="fillSearch('shoegaze dreampop atmosferisch gitaar')">🎸 shoegaze</div>
+    <div class="search-chip" onclick="fillSearch('jazz fusion progressief experimenteel')">🎷 jazz fusion</div>
+    <div class="search-chip" onclick="fillSearch('symfonische rock klassiek en prog')">🎻 symfonisch</div>
+  </div>
+
+  <!-- SNELKNOPPEN - RIJ 3: VERGELIJKINGEN -->
+
+  <div class="chips-section-label">KLINKT ALS</div>
+  <div class="search-chips-row">
+    <div class="search-chip" onclick="fillSearch('zoals Marillion Brave maar zwaarder en donkerder')">zoals Brave</div>
+    <div class="search-chip" onclick="fillSearch('zoals Porcupine Tree maar meer orkest en minder metal')">zoals PT</div>
+    <div class="search-chip" onclick="fillSearch('zoals Pink Floyd maar modernere productie')">zoals Floyd</div>
+    <div class="search-chip" onclick="fillSearch('zoals David Sylvian maar meer band geluid')">zoals Sylvian</div>
+    <div class="search-chip" onclick="fillSearch('zoals Airbag maar meer vocaal en tekst')">zoals Airbag</div>
+    <div class="search-chip" onclick="fillSearch('prog rock met cello en strijkers')">prog + cello</div>
+    <div class="search-chip" onclick="fillSearch('concept album verhaal over verlies of rouw')">concept album</div>
+  </div>
+
+  <div class="search-results" id="search-results"></div>
+</div>
+</div>
+
+<!-- SCREEN 5: PLAYLIST -->
+
+<div class="screen" id="s-playlist">
+<div class="pt-safe"></div>
+<div class="page-header">
+  <div class="eyebrow">Nieuwe Ontdekkingen</div>
+  <h1>Jouw<br>Playlist</h1>
+  <p>Onbekende bands, vertrouwde smaak</p>
+  <div class="divider"></div>
+</div>
+<div style="padding:0 16px 120px">
+
+  <!-- STEMMING KIEZEN -->
+
+  <div class="pl-section-label">KIES EEN STEMMING</div>
+  <div class="pl-mood-row">
+    <div class="pl-mood" id="plm-0" onclick="selectPlMood(0,'Melancholisch en emotioneel, zoals Marillion Brave')">🌧 Melancholisch</div>
+    <div class="pl-mood" id="plm-1" onclick="selectPlMood(1,'Donker en zwaar, duistere prog')">🖤 Donker</div>
+    <div class="pl-mood" id="plm-2" onclick="selectPlMood(2,'Dromerig en atmosferisch, ambient prog')">🌌 Dromerig</div>
+    <div class="pl-mood" id="plm-3" onclick="selectPlMood(3,'Episch en avontuurlijk, grootse composities')">🏔 Episch</div>
+    <div class="pl-mood" id="plm-4" onclick="selectPlMood(4,'Psychedelisch en experimenteel')">🌀 Psychedelisch</div>
+    <div class="pl-mood" id="plm-5" onclick="selectPlMood(5,'Intiem en akoestisch, rustige prog')">🕯 Intiem</div>
+  </div>
+
+  <!-- GENRE FILTER -->
+
+  <div class="pl-section-label" style="margin-top:14px">GENRE (optioneel)</div>
+  <div class="search-chips-row" id="pl-genre-row">
+    <div class="search-chip pl-genre-chip" onclick="togglePlGenre(this,'Progressieve rock')">prog rock</div>
+    <div class="search-chip pl-genre-chip" onclick="togglePlGenre(this,'Post-rock instrumentaal')">post-rock</div>
+    <div class="search-chip pl-genre-chip" onclick="togglePlGenre(this,'Symfonische rock')">symfonisch</div>
+    <div class="search-chip pl-genre-chip" onclick="togglePlGenre(this,'Art rock')">art rock</div>
+    <div class="search-chip pl-genre-chip" onclick="togglePlGenre(this,'Neofolk')">neofolk</div>
+    <div class="search-chip pl-genre-chip" onclick="togglePlGenre(this,'Shoegaze dreampop')">shoegaze</div>
+    <div class="search-chip pl-genre-chip" onclick="togglePlGenre(this,'Jazz fusion')">jazz fusion</div>
+  </div>
+
+  <!-- GENEREER KNOP -->
+
+  <button class="pl-generate-btn" id="pl-gen-btn" onclick="generatePlaylist()">
+    <span id="pl-gen-icon">▶</span>
+    <span id="pl-gen-txt">Genereer Playlist</span>
+  </button>
+
+  <!-- PLAYLIST OUTPUT -->
+
+  <div id="pl-output"></div>
+</div>
+</div>
+<!-- NU SPEELT BALK -->
+<div class="now-playing-bar" id="now-playing-bar" style="display:none">
+  <div class="np-info" onclick="npPlayCurrent()">
+    <div class="np-track" id="np-track">—</div>
+    <div class="np-artist" id="np-artist">—</div>
+  </div>
+  <div class="np-controls">
+    <button class="np-btn" onclick="npPlayCurrent()" title="Speel huidig nummer">▶</button>
+    <button class="np-btn np-next" onclick="npNext()" title="Volgende nummer" id="np-next-btn">⏭</button>
+    <button class="np-btn np-close" onclick="npClose()" title="Sluiten">✕</button>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <div class="tab active" onclick="switchTab('home',this)"><div class="tab-icon">🎭</div><div class="tab-label">Marillion</div></div>
+  <div class="tab" onclick="switchTab('bands',this)"><div class="tab-icon">🎸</div><div class="tab-label">Bands</div></div>
+  <div class="tab" onclick="switchTab('albums',this)"><div class="tab-icon">💿</div><div class="tab-label">Albums</div></div>
+  <div class="tab" onclick="switchTab('discover',this)"><div class="tab-icon">✨</div><div class="tab-label">Ontdek</div></div>
+  <div class="tab" onclick="switchTab('playlist',this)"><div class="tab-icon">🎵</div><div class="tab-label">Playlist</div></div>
+</div>
+
+<!-- ALBUM DETAIL MODAL -->
+
+<div class="album-modal-overlay" id="album-modal" onclick="closeAlbumModal(event)">
+  <div class="album-modal-sheet">
+    <div class="amodal-handle"></div>
+    <div class="amodal-close" onclick="closeAlbumModalDirect()">✕</div>
+    <div class="amodal-cover" id="am-cover"><span id="am-placeholder">💿</span></div>
+    <div class="amodal-title" id="am-title"></div>
+    <div class="amodal-year" id="am-year"></div>
+    <div class="amodal-body">
+      <div class="amodal-section">Over dit album</div>
+      <div class="amodal-text" id="am-desc"></div>
+      <div class="amodal-section">Nummers</div>
+      <ul class="track-list" id="am-tracks"></ul>
+      <div class="amodal-btns">
+        <a class="amodal-btn primary" id="am-ytmusic" href="#" target="_blank">🎵 YT Music</a>
+        <a class="amodal-btn" id="am-spotify" href="#" target="_blank">Spotify</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BAND MODAL -->
+
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-close" onclick="closeModalDirect()">✕</div>
+      <span class="modal-icon" id="m-icon"></span>
+      <div class="modal-name" id="m-name"></div>
+      <div class="modal-sub" id="m-sub"></div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section-title">Over de artiest</div>
+      <div class="modal-text" id="m-desc"></div>
+      <div class="modal-section-title">Marillion-connectie</div>
+      <div class="modal-text" id="m-conn"></div>
+      <div class="modal-section-title">Begin met luisteren</div>
+      <div class="rec-chips" id="m-recs"></div>
+      <div class="modal-link-row">
+        <a class="modal-btn primary" id="m-ytmusic" href="#" target="_blank">🎵 YT Music</a>
+        <a class="modal-btn" id="m-spotify" href="#" target="_blank">Spotify</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══ DATA ══
+const STORY = [
+  { era:'De Geboorte & Fish-era', years:'1979–1988', color:'#c8a84a', text:'Marillion werd opgericht in <em>Aylesbury, Engeland</em> als een van de weinige bands die in de punk-era durfde voort te borduren op de symfonische prog van Genesis en Yes. Frontman <em>Fish</em> (Derek William Dick) was het theatrale hart: een Schotse storyteller met een stem als een klokkentoren en teksten die literaire diepgang combineerden met rauwe emotie. Hun debuut <em>Script for a Jester\'s Tear</em> (1983) maakte meteen indruk. <em>Misplaced Childhood</em> (1985) werd een Britse nummer-één hit — een conceptalbum over liefde, verlies en volwassen worden. Maar achter de successen sluimerde onrust. Fish vertrok in 1988 na ruzies over muzikale richting en levensstijl.' },
+  { era:'De Hogarth-revolutie', years:'1989–1999', color:'#3ab0b8', text:'De band kondigde een nieuwe zanger aan die niemand kende: <em>Steve Hogarth</em>, voormalig toetsenist van The Europeans. Velen voorspelden het einde. In plaats daarvan begon Marillion\'s rijkste periode. <em>Season\'s End</em> (1989) toonde een andere band — introverter, emotioneler, cinematischer. Het hoogtepunt was <em>Brave</em> (1994), een conceptalbum over een meisje gevonden op de Severn Bridge. Volledig opgenomen live in de studio, geen overdubs. Puur en rauw. Hogarth\'s stemgeluid — kwetsbaar én krachtig — gaf de band een nieuwe ziel.' },
+  { era:'Pioniers van het internet', years:'2000–2009', color:'#8c6bea', text:'Toen hun platenmaatschappij hen liet vallen, deden Marillion iets ongekends: ze <em>presellden</em> hun album via internet aan fans, voordat het gemaakt was. In 1997 verzamelden fans al geld voor een Amerikaanse tour zonder dat de band het had gevraagd. Dit model — later crowdfunding genoemd — was revolutionair. De band bewees dat je zonder label kon overleven met een trouwe fanbase. Albums als <em>Anoraknophobia</em> (2001) en <em>Marbles</em> (2004) werden hun meest persoonlijke en ambitieuze werk ooit.' },
+  { era:'Meesters van hun vak', years:'2010–heden', color:'#fc8c7a', text:'Veertig jaar na dato zijn Marillion nog steeds actief en relevanter dan ooit. <em>F E A R</em> (2016) was een politiek statement over de staat van de wereld. <em>An Hour Before It\'s Dark</em> (2022) verkende sterfelijkheid, natuur en tijd met de sereniteit van een band die niets meer te bewijzen heeft — en juist daardoor hun meest ontroerende werk aflevert. Ze spelen nog steeds uitverkochte shows, organiseren hun eigen <em>Marillion Weekend</em> festivals en hebben een van de meest toegewijde fanbases ter wereld: de <em>Freaks</em>.' }
+];
+
+const DISCO = [
+  { title:"Script for a Jester's Tear", year:1983, era:'fish', color:'#c8a84a', itunesQuery:'artist:Marillion release:Script for a Jesters Tear', desc:"Het debuutalbum dat Marillion meteen op de kaart zette. Theatraal, episch en vol Genesisachtige grandeur — maar toch uniek door Fish's poëtische teksten.", tracks:["Script for a Jester's Tear","He Knows You Know","The Web","Garden Party","Chelsea Monday","Forgotten Sons"], highlight:[0,5], spotify:'https://open.spotify.com/search/Marillion%20Script%20for%20a%20Jesters%20Tear', ytmusic:'https://music.youtube.com/search?q=Marillion+Script+Jester' },
+  { title:"Fugazi", year:1984, era:'fish', color:'#c8a84a', itunesQuery:'artist:Marillion release:Fugazi', desc:"Donkerder en complexer dan het debuut. Fish's teksten worden scherper, de muziek voller. 'Assassing' is een van hun meest krachtige nummers.", tracks:["Assassing","Punch and Judy","Jigsaw","Emerald Lies","She Chameleon","Incubus","Fugazi"], highlight:[0,6], spotify:'https://open.spotify.com/search/Marillion+Fugazi', ytmusic:'https://music.youtube.com/search?q=Marillion+Fugazi' },
+  { title:"Misplaced Childhood", year:1985, era:'fish', color:'#c8a84a', itunesQuery:'artist:Marillion release:Misplaced Childhood', desc:"Het meesterwerk van de Fish-era. Een conceptalbum zonder pauze, over liefde, verlies en opgroeien. 'Kayleigh' werd een hit, maar het hele album is één groot werk.", tracks:["Pseudo Silk Kimono","Kayleigh","Lavender","Bitter Suite","Heart of Lothian","Waterhole (Expresso Bongo)","Lords of the Backstage","Blind Curve","Childhoods End","White Feather"], highlight:[1,8], spotify:'https://open.spotify.com/search/Marillion+Misplaced+Childhood', ytmusic:'https://music.youtube.com/search?q=Marillion+Misplaced+Childhood' },
+  { title:"Clutching at Straws", year:1987, era:'fish', color:'#c8a84a', itunesQuery:'artist:Marillion release:Clutching at Straws', desc:"Fish's afscheidscadeau. Een pijnlijk eerlijk album over verslaving, falen en verlies. Zijn donkerste teksten, de band op hun meest rauws.", tracks:["Hotel Hobbies","Warm Wet Circles","That Time of the Night","Going Under","Just for the Record","White Russian","Incommunicado","Torch Song","Slainte Mhath","Sugar Mice","The Last Straw"], highlight:[9,10], spotify:'https://open.spotify.com/search/Marillion+Clutching+at+Straws', ytmusic:'https://music.youtube.com/search?q=Marillion+Clutching+at+Straws' },
+  { title:"Season's End", year:1989, era:'hogarth', color:'#3ab0b8', itunesQuery:'artist:Marillion release:Seasons End', desc:"De introductie van Steve Hogarth. Sceptici werden snel overtuigd. Een frisser, meer open geluid, maar nog steeds onmiskenbaar Marillion.", tracks:["King of Sunset Town","The Uninvited Guest","Season's End","Holloway Girl","Berlin","After Me","Hooks in You","The Space..."], highlight:[0,7], spotify:'https://open.spotify.com/search/Marillion+Seasons+End', ytmusic:'https://music.youtube.com/search?q=Marillion+Seasons+End' },
+  { title:"Holidays in Eden", year:1991, era:'hogarth', color:'#3ab0b8', itunesQuery:'artist:Marillion release:Holidays in Eden', desc:"Toegankelijker en popgerichter dan zijn voorgangers, maar met die onmiskenbare Marillion-ziel. 'Dry Land' en 'Cover My Eyes' zijn hoogtepunten.", tracks:["Splintering Heart","Cover My Eyes (Pain and Heaven)","The Party","No One Can","Holidays in Eden","Dry Land","Waiting to Happen","This Town","The Rakes Progress","100 Nights"], highlight:[1,5], spotify:'https://open.spotify.com/search/Marillion+Holidays+in+Eden', ytmusic:'https://music.youtube.com/search?q=Marillion+Holidays+in+Eden' },
+  { title:"Brave", year:1994, era:'hogarth', color:'#3ab0b8', itunesQuery:'artist:Marillion release:Brave', desc:"Misschien wel hun grootste werk. Een conceptalbum gebaseerd op een waargebeurd verhaal — een vrouw gevonden op de Severn Bridge. Volledig live opgenomen. Rauw, ontroerend en tijdloos.", tracks:["Bridge","Living with the Big Lie","Runaway","Goodbye to All That","Hard as Love","The Hollow Man","Alone Again in the Lap of Luxury","Paper Lies","Brave","The Great Escape","The Last of You","Falling from the Moon"], highlight:[0,8,9], spotify:'https://open.spotify.com/search/Marillion+Brave', ytmusic:'https://music.youtube.com/search?q=Marillion+Brave+1994' },
+  { title:"Afraid of Sunlight", year:1995, era:'hogarth', color:'#3ab0b8', itunesQuery:'artist:Marillion release:Afraid of Sunlight', desc:"Een meditatief album over roem, verlies en kwetsbaarheid. Geïnspireerd door beroemde mensen die bezweken aan de druk van succes. 'Estonia' is een van hun mooiste nummers ooit.", tracks:["Gazpacho","Cannibal Surge","Beautiful","Afraid of Sunrise","Out of This World","Afraid of Sunlight","Beyond You","King","Estonia"], highlight:[8], spotify:'https://open.spotify.com/search/Marillion+Afraid+of+Sunlight', ytmusic:'https://music.youtube.com/search?q=Marillion+Afraid+of+Sunlight' },
+  { title:"This Strange Engine", year:1997, era:'hogarth', color:'#3ab0b8', itunesQuery:'artist:Marillion release:This Strange Engine', desc:"De titeltrack is een 18-minuten durend epos — één van hun grootste composities. Het album markeert het begin van hun onafhankelijke periode.", tracks:["Man of a Thousand Faces","One Fine Day","Eighty Days","Estonia (Reprise)","Memory of Water","An Accidental Man","Hope for the Future","This Strange Engine"], highlight:[7], spotify:'https://open.spotify.com/search/Marillion+This+Strange+Engine', ytmusic:'https://music.youtube.com/search?q=Marillion+This+Strange+Engine' },
+  { title:"Radiation", year:1998, era:'hogarth', color:'#3ab0b8', itunesQuery:'artist:Marillion release:Radiation', desc:"Een experimenteel, elektrisch album dat Marillion in nieuwe richting stuurde. Meer rauwe energie, andere productie. Een onderschat album.", tracks:["Costa del Slough","Under the Sun","The Fruit of the Wild Rose","Cylons in Love","Cathedral Wall","A Few Words for the Dead","These Chains","Born to Run"], highlight:[5], spotify:'https://open.spotify.com/search/Marillion+Radiation', ytmusic:'https://music.youtube.com/search?q=Marillion+Radiation' },
+  { title:"marillion.com", year:1999, era:'hogarth', color:'#3ab0b8', itunesQuery:'artist:Marillion release:marillion.com', desc:"Vooruitloopalbum op het internet-tijdperk. Voortijdig gefund door fans — een primeur in de muziekindustrie. Bevat het briljante 'Go!'", tracks:["A Legacy","Tumble Down the Years","Interior Lulu","House","Face in the Crowd","Go!","Rich","Enlightened (Emotional Vodka Advert)","Built-in Bastard Radar","Soft Ground"], highlight:[5], spotify:'https://open.spotify.com/search/Marillion+marillion.com', ytmusic:'https://music.youtube.com/search?q=Marillion+marillion.com' },
+  { title:"Anoraknophobia", year:2001, era:'hogarth', color:'#8c6bea', itunesQuery:'artist:Marillion release:Anoraknophobia', desc:"Een van hun meest persoonlijke albums. Rustig, intiem en doorvoeld. 'This Is the 21st Century' en 'When I Meet God' zijn bijzonder.", tracks:["Between You and Me","When I Meet God","The Fruit of the Wild Rose (Reprise)","Quartz","Map of the World","When It Comes to It","Interior Lulu (Reprise)","Separated Out","We Are","This is the 21st Century","If My Heart Were a Ball It Would Roll Uphill"], highlight:[9,10], spotify:'https://open.spotify.com/search/Marillion+Anoraknophobia', ytmusic:'https://music.youtube.com/search?q=Marillion+Anoraknophobia' },
+  { title:"Marbles", year:2004, era:'hogarth', color:'#8c6bea', itunesQuery:'artist:Marillion release:Marbles', desc:"Een dubbel meesterwerk over de moeizame weg naar herstel en verbinding. 'Neverland' is op de grens van het volmaakte. Een van hun beste albums.", tracks:["The Invisible Man","Marbles I","You're Gone","Fantastic Place","Marbles II","Don't Hurt Yourself","The Damage","Angelina","Marbles III","Neverland","The Wound That Heals","Drilling Holes","Marbles IV"], highlight:[2,9], spotify:'https://open.spotify.com/search/Marillion+Marbles', ytmusic:'https://music.youtube.com/search?q=Marillion+Marbles+2004' },
+  { title:"Somewhere Else", year:2007, era:'hogarth', color:'#8c6bea', itunesQuery:'artist:Marillion release:Somewhere Else', desc:"Toegankelijker maar zeker niet oppervlakkig. Een popgericht album met prachtige melodieën en de gebruikelijke textuele diepgang.", tracks:["The Other Half","See It Like a Baby","Most Toys","No Such Thing","The Wound That Heals","A Voice from the Past","Somewhere Else","Number One","Happiness Is the Road"], highlight:[6], spotify:'https://open.spotify.com/search/Marillion+Somewhere+Else', ytmusic:'https://music.youtube.com/search?q=Marillion+Somewhere+Else' },
+  { title:"Happiness Is the Road", year:2008, era:'hogarth', color:'#8c6bea', itunesQuery:'artist:Marillion release:Happiness Is the Road', desc:"Een uitgebreid dubbelalbum dat de zoektocht naar geluk onderzoekt vanuit twee perspectieven: 'Essence' (innerlijk) en 'The Hard Shoulder' (buitenwereld).", tracks:["Happiness Is the Road","Whatever Is Next","Wrapped Up in Time","Two Worlds","Interior Lulu (Reprise)","The Man from the Planet Marzipan","Hard Shoulder","Trap the Spark","Essence"], highlight:[0,8], spotify:'https://open.spotify.com/search/Marillion+Happiness+Is+the+Road', ytmusic:'https://music.youtube.com/search?q=Marillion+Happiness+Is+the+Road' },
+  { title:"Sounds That Can't Be Made", year:2012, era:'hogarth', color:'#fc8c7a', itunesQuery:'artist:Marillion release:Sounds That Cant Be Made', desc:"Een terugkeer naar de grotere, meer epische Marillion. 'Power' en 'Pour My Love' zijn hoogtepunten. Het album leeft van contrasten.", tracks:["Gaza","Power","Pour My Love","Lucky Man","Montreal","Invisible Ink","Sounds That Can't Be Made","Sky Above the Rain"], highlight:[0,5], spotify:'https://open.spotify.com/search/Marillion+Sounds+That+Cant+Be+Made', ytmusic:'https://music.youtube.com/search?q=Marillion+Sounds+That+Cant+Be+Made' },
+  { title:"F E A R", year:2016, era:'hogarth', color:'#fc8c7a', itunesQuery:'artist:Marillion release:F E A R', desc:"Fuck Everyone And Run. Een politiek, woedend en toch poëtisch album over de staat van de wereld. 'The New Kings' is een 19-minuut durend epos over kapitalisme en controle.", tracks:["El Dorado","Living in F E A R","The Leavers","White Paper","The New Kings"], highlight:[0,4], spotify:'https://open.spotify.com/search/Marillion+FEAR+2016', ytmusic:'https://music.youtube.com/search?q=Marillion+F+E+A+R+2016' },
+  { title:"With Friends from the Orchestra", year:2019, era:'hogarth', color:'#fc8c7a', itunesQuery:'artist:Marillion release:With Friends from the Orchestra', desc:"Bestaande nummers opnieuw ingespeeld met een volledig orkest. Herschept klassiekers als 'Neverland' en 'Estonia' in een cinematische pracht.", tracks:["El Dorado","Neverland","Gaza","Separated Out","The Leavers","Ocean Cloud","Estonia","Power","This Strange Engine"], highlight:[1,6,8], spotify:'https://open.spotify.com/search/Marillion+With+Friends+from+the+Orchestra', ytmusic:'https://music.youtube.com/search?q=Marillion+With+Friends+Orchestra' },
+  { title:"An Hour Before It's Dark", year:2022, era:'hogarth', color:'#fc8c7a', itunesQuery:'artist:Marillion release:An Hour Before Its Dark', desc:"Hun meest recente meesterwerk. Over sterfelijkheid, natuur en de schoonheid van het gewone moment. De band klinkt sereen, wijs en ongekend mooi.", tracks:["Be Hard on Yourself","Reprogram the Gene","Only a Kiss","Murder Machines","The Crow and the Nightingale","Hope for the Future","Care","Essence (Reprise)"], highlight:[0,4,6], spotify:'https://open.spotify.com/search/Marillion+An+Hour+Before+Its+Dark', ytmusic:'https://music.youtube.com/search?q=Marillion+An+Hour+Before+Its+Dark' }
+];
+
+const BANDS = [
+  { icon:'✈️', name:'Airbag', color:'linear-gradient(135deg,#4ab88a,#6dd8aa)', genre:'Post-Progressive Rock', era:'2004–heden', desc:'Noors prog-meesterwerk. Airbag combineert de atmosferische diepte van Porcupine Tree met iets kouds en noordelijks. Gitarist Bjørn Riis is ook soloartiest.', conn:'Airbag klinkt als een directe lijn naar Marillion\'s Brave-era — lang, episch, emotioneel eerlijk. Ontdekt door Marillion-fans wereldwijd.', recs:['All Rights Removed','The Greatest Show on Earth','A Day at the Beach','Disconnected'], spotify:'https://open.spotify.com/search/Airbag%20band', ytmusic:'https://music.youtube.com/search?q=Airbag+prog+rock' },
+  { icon:'🌵', name:'Porcupine Tree', color:'linear-gradient(135deg,#3ab0b8,#6dd8e0)', genre:'Progressive Rock', era:'1987–2010, 2022–', desc:'Steven Wilson\'s magnum opus. Begonnen als psychedelisch experiment, uitgegroeid tot één van de meest invloedrijke prog-bands. Donker, cinematisch en technisch virtuoos.', conn:'Deelt Marillion\'s gave om lange, filmische composities vol emotie te maken. Beide bands weigeren een label.', recs:['Fear of a Blank Planet','Deadwing','In Absentia','The Sky Moves Sideways'], spotify:'https://open.spotify.com/artist/3RNrq3jvMZxD9ZyoOZbQOD', ytmusic:'https://music.youtube.com/search?q=Porcupine+Tree' },
+  { icon:'🎙️', name:'Steven Wilson', color:'linear-gradient(135deg,#8c6bea,#b48cfb)', genre:'Progressive Art Rock', era:'1992–heden', desc:'Polymath en perfectionist. Als soloartiest verkent Wilson de ruimtes tussen prog, ambient, jazz en pop. Elk album is een bewuste keuze anders te zijn.', conn:'Wilson is de Steve Hogarth van zijn generatie — een woordkunstenaar die muziek als narratief beschouwt.', recs:['Hand Cannot Erase','The Raven That Refused to Sing','Grace for Drowning'], spotify:'https://open.spotify.com/artist/4bthk9UfsYUhgHpowiJTTR', ytmusic:'https://music.youtube.com/search?q=Steven+Wilson' },
+  { icon:'🌀', name:'Pink Floyd', color:'linear-gradient(135deg,#e8843c,#f0a84a)', genre:'Progressive / Psychedelic Rock', era:'1965–1994', desc:'De oervaders. Zonder Pink Floyd geen Marillion. Hun vermogen om soundscapes te creëren die je binnenin voelen, hun gebruik van stilte als instrument — dit is de blauwdruk.', conn:'Marillion nam expliciet de fakkel over van Floyd. Fish noemde Roger Waters herhaaldelijk als zijn grootste inspiratie.', recs:['Wish You Were Here','The Wall','Echoes','Comfortably Numb','High Hopes'], spotify:'https://open.spotify.com/artist/0k17h0D3J5VfsdmQ1iZtE9', ytmusic:'https://music.youtube.com/search?q=Pink+Floyd' },
+  { icon:'🏔️', name:'Bjørn Riis', color:'linear-gradient(135deg,#7ab8f5,#5aa0e8)', genre:'Atmospheric Progressive Rock', era:'2012–heden', desc:'Gitarist van Airbag maar solowerk is een compleet andere wereld. Stemmige, meditatieve albums die ademen zoals berglandschappen.', conn:'Riis\' solowerk heeft dezelfde intimiteit als Marillion\'s "A Few Words for the Dead" — kamermuziek die het grote verhaal vertelt.', recs:['Lullabies in a Car Crash','Forever Comes to an End','A Storm is Coming'], spotify:'https://open.spotify.com/search/Bjorn%20Riis%20musician', ytmusic:'https://music.youtube.com/search?q=Bj%C3%B8rn+Riis+musician' },
+  { icon:'⚡', name:'Deftones', color:'linear-gradient(135deg,#fc8c7a,#f06b5b)', genre:'Alternative Metal / Shoegaze', era:'1988–heden', desc:'Op het eerste gezicht de vreemde eend — maar Deftones\' vermogen om dissonantie en pure schoonheid te smelten is verwant aan het donkerste Marillion. Chino Moreno is een emotioneel genie.', conn:'Marillion\'s "Afraid of Sunlight" en Deftones\' "White Pony" komen uit dezelfde psychologische ruimte: kwetsbaarheid als kracht.', recs:['White Pony','Koi No Yokan','Around the Fur','Diamond Eyes'], spotify:'https://open.spotify.com/artist/6Ghvu1VvMGScGpOUJBAHNH', ytmusic:'https://music.youtube.com/search?q=Deftones' },
+  { icon:'🌸', name:'David Sylvian', color:'linear-gradient(135deg,#f5c26e,#e8a83c)', genre:'Art Rock / Ambient / Jazz', era:'1970–heden', desc:'Voormalig Japan-frontman, later avant-garde soloartiest. Sylvian\'s werk is vloeibaar — jazz, ambient, poëzie, stilte. Muziek als meditatieve praktijk.', conn:'Fish citeerde Japan en Sylvian als vroege invloed op zijn lyrische aanpak. Dezelfde bereidheid het onzegbare te zeggen.', recs:['Brilliant Trees','Secrets of the Beehive','Gone to Earth'], spotify:'https://open.spotify.com/artist/0Rpz0ggF5PLaQCaGkVhGcz', ytmusic:'https://music.youtube.com/search?q=David+Sylvian' }
+];
+
+const OTHER_ALBUMS = [
+  { icon:'🌀', title:'Dark Side of the Moon', artist:'Pink Floyd', itunesQuery:'artist:Pink Floyd release:Dark Side of the Moon', year:1973, color:'linear-gradient(135deg,#000,#1a0050)', filter:'Pink Floyd', ytmusic:'https://music.youtube.com/search?q=Pink+Floyd+Dark+Side' },
+  { icon:'💧', title:'Wish You Were Here', artist:'Pink Floyd', itunesQuery:'artist:Pink Floyd release:Wish You Were Here', year:1975, color:'linear-gradient(135deg,#0a0a20,#1a1a40)', filter:'Pink Floyd', ytmusic:'https://music.youtube.com/search?q=Pink+Floyd+Wish+You+Were+Here' },
+  { icon:'🌊', title:'Fear of a Blank Planet', artist:'Porcupine Tree', itunesQuery:'artist:Porcupine Tree release:Fear of a Blank Planet', year:2007, color:'linear-gradient(135deg,#0a1e2e,#1a3a5c)', filter:'Porcupine Tree', ytmusic:'https://music.youtube.com/search?q=Porcupine+Tree+Fear+Blank+Planet' },
+  { icon:'💀', title:'In Absentia', artist:'Porcupine Tree', itunesQuery:'artist:Porcupine Tree release:In Absentia', year:2002, color:'linear-gradient(135deg,#1e0a0a,#3c1818)', filter:'Porcupine Tree', ytmusic:'https://music.youtube.com/search?q=Porcupine+Tree+In+Absentia' },
+  { icon:'🖐️', title:'Hand Cannot Erase', artist:'Steven Wilson', itunesQuery:'artist:Steven Wilson release:Hand Cannot Erase', year:2015, color:'linear-gradient(135deg,#0a0a1e,#18183c)', filter:'Steven Wilson', ytmusic:'https://music.youtube.com/search?q=Steven+Wilson+Hand+Cannot+Erase' },
+  { icon:'🌫️', title:'All Rights Removed', artist:'Airbag', itunesQuery:'artist:Airbag release:All Rights Removed', year:2011, color:'linear-gradient(135deg,#0a1e14,#183c28)', filter:'Airbag', ytmusic:'https://music.youtube.com/search?q=Airbag+All+Rights+Removed' },
+  { icon:'🏔️', title:'Lullabies in a Car Crash', artist:'Bjørn Riis', itunesQuery:'artist:Bjorn Riis release:Lullabies in a Car Crash', year:2014, color:'linear-gradient(135deg,#0a141e,#182838)', filter:'Bjørn Riis', ytmusic:'https://music.youtube.com/search?q=Bjorn+Riis+Lullabies' },
+  { icon:'⚡', title:'White Pony', artist:'Deftones', itunesQuery:'artist:Deftones release:White Pony', year:2000, color:'linear-gradient(135deg,#1e0a0a,#400a0a)', filter:'Deftones', ytmusic:'https://music.youtube.com/search?q=Deftones+White+Pony' },
+  { icon:'🌸', title:'Brilliant Trees', artist:'David Sylvian', itunesQuery:'artist:David Sylvian release:Brilliant Trees', year:1984, color:'linear-gradient(135deg,#1e1400,#3c2a00)', filter:'Sylvian', ytmusic:'https://music.youtube.com/search?q=David+Sylvian+Brilliant+Trees' }
+];
+
+// ══ COVER ART via MusicBrainz + Cover Art Archive (gratis, geen key) ══
+const coverCache = {};
+let mbQueue = [], mbBusy = false;
+
+function mbThrottle(fn) {
+  return new Promise(function(resolve) {
+    mbQueue.push(function(){ resolve(fn()); });
+    if (!mbBusy) mbDrain();
+  });
+}
+function mbDrain() {
+  if (!mbQueue.length) { mbBusy = false; return; }
+  mbBusy = true;
+  var fn = mbQueue.shift();
+  fn();
+  setTimeout(mbDrain, 1100); // MusicBrainz: max 1 req/sec
+}
+
+function fetchCover(query) {
+  if (coverCache[query]) return Promise.resolve(coverCache[query]);
+  return mbThrottle(function() {
+    var mbUrl = 'https://musicbrainz.org/ws/2/release-group?query='
+      + encodeURIComponent(query) + '&limit=3&fmt=json';
+    return fetch(mbUrl, { headers: { 'User-Agent': 'MarillionUniverse/1.0 (personal app)' } })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (!data['release-groups'] || !data['release-groups'].length) return null;
+        var mbid = data['release-groups'][0].id;
+        // Cover Art Archive volgt redirect naar echte hoes
+        var url = 'https://coverartarchive.org/release-group/' + mbid + '/front-500';
+        coverCache[query] = url;
+        return url;
+      })
+      .catch(function() { return null; });
+  });
+}
+
+function loadCoverIntoElement(elId, query) {
+  fetchCover(query).then(function(url) {
+    if (!url) return;
+    var el = document.getElementById(elId);
+    if (!el) return;
+    var img = new Image();
+    img.onload = function() {
+      var el2 = document.getElementById(elId);
+      if (el2) el2.innerHTML = '<img src="' + url + '" alt="cover" style="width:100%;height:100%;object-fit:cover;display:block;">';
+    };
+    img.onerror = function() {};
+    img.src = url;
+  });
+}
+
+// ══ RENDER STORY ══
+function renderStory() {
+  const block = document.getElementById('story-block');
+  STORY.forEach(function(s, i) {
+    const el = document.createElement('div');
+    el.className = 'story-card';
+    el.style.animation = 'fadeUp 0.6s ' + (i * 0.08 + 0.3) + 's both';
+    el.innerHTML =
+      '<div class="story-card-header">' +
+        '<div class="story-era-badge">' +
+          '<div class="story-dot" style="background:' + s.color + '"></div>' +
+          '<div class="story-era-title">' + s.era + '</div>' +
+        '</div>' +
+        '<div style="display:flex;align-items:center;gap:8px">' +
+          '<div class="story-years">' + s.years + '</div>' +
+          '<div class="story-chevron">▼</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="story-body">' +
+        '<div class="story-text">' + s.text + '</div>' +
+      '</div>';
+    el.onclick = function() { el.classList.toggle('open'); };
+    block.appendChild(el);
+  });
+  if (block.firstChild) block.firstChild.classList.add('open');
+}
+
+// ══ RENDER DISCO FILTERS ══
+function renderDiscoFilters() {
+  const row = document.getElementById('disco-filters');
+  ['Alles','Fish-era','Hogarth-era'].forEach(function(f) {
+    const el = document.createElement('div');
+    el.className = 'disco-pill' + (f === 'Alles' ? ' on' : '');
+    el.textContent = f;
+    el.onclick = function() {
+      document.querySelectorAll('#disco-filters .disco-pill').forEach(function(p) { p.classList.remove('on'); });
+      el.classList.add('on');
+      renderDiscoGrid(f);
+    };
+    row.appendChild(el);
+  });
+}
+
+// ══ RENDER DISCO GRID ══
+function renderDiscoGrid(filter) {
+  filter = filter || 'Alles';
+  const grid = document.getElementById('disco-grid');
+  grid.innerHTML = '';
+  const items = filter === 'Alles' ? DISCO :
+    filter === 'Fish-era' ? DISCO.filter(function(d){ return d.era === 'fish'; }) :
+    DISCO.filter(function(d){ return d.era !== 'fish'; });
+  items.forEach(function(d, i) {
+    const card = document.createElement('div');
+    card.className = 'disco-card';
+    card.style.animation = 'fadeUp 0.5s ' + (i * 0.04) + 's both';
+    const elId = 'dc-' + i + '-' + filter.replace(/[^a-z]/gi,'_');
+    card.innerHTML =
+      '<div class="disco-cover" id="' + elId + '">' +
+        '<div class="cover-placeholder">💿</div>' +
+      '</div>' +
+      '<div class="disco-info">' +
+        '<div class="disco-title">' + d.title + '<span class="disco-era-dot" style="background:' + d.color + '"></span></div>' +
+        '<div class="disco-year">' + d.year + '</div>' +
+      '</div>';
+    card.onclick = (function(album, id){ return function(){ openAlbumModal(album, id); }; })(d, elId);
+    grid.appendChild(card);
+    if (d.itunesQuery) loadCoverIntoElement(elId, d.itunesQuery);
+  });
+}
+
+// ══ ALBUM MODAL ══
+function openAlbumModal(d, coverElId) {
+  const coverEl = document.getElementById('am-cover');
+  const srcEl = document.getElementById(coverElId);
+  const img = srcEl ? srcEl.querySelector('img') : null;
+  if (img) {
+    coverEl.innerHTML = '<img src="' + img.src + '" alt="cover">';
+  } else {
+    coverEl.innerHTML = '<span>' + (d.era === 'fish' ? '🎩' : '🎭') + '</span>';
+    fetchCover(d.itunesQuery || 'marillion ' + d.title).then(function(url) {
+      if (url) document.getElementById('am-cover').innerHTML = '<img src="' + url + '" alt="cover">';
+    });
+  }
+  document.getElementById('am-title').textContent = d.title;
+  document.getElementById('am-year').textContent = d.year + ' · Marillion';
+  document.getElementById('am-desc').textContent = d.desc;
+  const tl = document.getElementById('am-tracks');
+  tl.innerHTML = d.tracks.map(function(t,i){
+    return '<li class="track-item"><span class="track-num">' + (i+1) + '</span><span class="track-name ' + (d.highlight && d.highlight.includes(i) ? 'highlight' : '') + '">' + t + '</span></li>';
+  }).join('');
+  document.getElementById('am-ytmusic').href = d.ytmusic;
+  document.getElementById('am-spotify').href = d.spotify;
+  document.getElementById('album-modal').classList.add('open');
+}
+function closeAlbumModal(e) { if (e.target === document.getElementById('album-modal')) closeAlbumModalDirect(); }
+function closeAlbumModalDirect() { document.getElementById('album-modal').classList.remove('open'); }
+
+// ══ RENDER BANDS ══
+function renderBands() {
+  const grid = document.getElementById('bands-grid');
+  BANDS.forEach(function(b, i) {
+    const el = document.createElement('div');
+    el.className = 'band-card';
+    el.style.animation = 'fadeUp 0.6s ' + (i*0.05+0.2) + 's both';
+    el.innerHTML =
+      '<div class="band-top-bar" style="background:' + b.color + '"></div>' +
+      '<span class="band-icon">' + b.icon + '</span>' +
+      '<div class="band-name">' + b.name + '</div>' +
+      '<div class="band-genre">' + b.genre + '</div>' +
+      '<div class="band-connection">' + b.conn.substring(0,75) + '…</div>';
+    el.onclick = function() { openModal(b); };
+    grid.appendChild(el);
+  });
+}
+
+// ══ OTHER ALBUMS ══
+function renderOtherAlbums(filter) {
+  filter = filter || 'Alles';
+  const list = document.getElementById('albums-list');
+  list.innerHTML = '';
+  const items = filter === 'Alles' ? OTHER_ALBUMS : OTHER_ALBUMS.filter(function(a){ return a.filter === filter; });
+  items.forEach(function(a, i) {
+    const card = document.createElement('div');
+    card.className = 'disco-card';
+    card.style.animation = 'fadeUp 0.5s ' + (i*0.04) + 's both';
+    const elId = 'oa-' + i + '-' + filter.replace(/[^a-z]/gi,'_');
+    card.innerHTML =
+      '<div class="disco-cover" id="' + elId + '">' +
+        '<div class="cover-placeholder">' + a.icon + '</div>' +
+      '</div>' +
+      '<div class="disco-info">' +
+        '<div class="disco-title">' + a.title + '</div>' +
+        '<div class="disco-year">' + a.artist + ' · ' + a.year + '</div>' +
+      '</div>';
+    card.onclick = function() { window.open(a.ytmusic, '_blank'); };
+    list.appendChild(card);
+    loadCoverIntoElement(elId, a.itunesQuery || a.artist + ' ' + a.title);
+  });
+}
+
+function renderOtherFilters() {
+  const row = document.getElementById('album-filters');
+  ['Alles','Pink Floyd','Porcupine Tree','Steven Wilson','Airbag','Bjørn Riis','Deftones','Sylvian'].forEach(function(f) {
+    const el = document.createElement('div');
+    el.className = 'disco-pill' + (f === 'Alles' ? ' on' : '');
+    el.textContent = f;
+    el.onclick = function() {
+      document.querySelectorAll('#album-filters .disco-pill').forEach(function(p){ p.classList.remove('on'); });
+      el.classList.add('on');
+      renderOtherAlbums(f);
+    };
+    row.appendChild(el);
+  });
+}
+
+// ══ BAND MODAL ══
+function openModal(b) {
+  document.getElementById('m-icon').textContent = b.icon;
+  document.getElementById('m-name').textContent = b.name;
+  document.getElementById('m-sub').textContent = b.genre + ' · ' + b.era;
+  document.getElementById('m-desc').textContent = b.desc;
+  document.getElementById('m-conn').textContent = b.conn;
+  document.getElementById('m-recs').innerHTML = b.recs.map(function(r){ return '<div class="rec-chip">' + r + '</div>'; }).join('');
+  document.getElementById('m-ytmusic').href = b.ytmusic;
+  document.getElementById('m-spotify').href = b.spotify;
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal(e) { if (e.target === document.getElementById('modal')) closeModalDirect(); }
+function closeModalDirect() { document.getElementById('modal').classList.remove('open'); }
+
+// ══ TABS ══
+function switchTab(id, el) {
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+  document.getElementById('s-'+id).classList.add('active');
+  el.classList.add('active');
+}
+
+// ══ API KEY ══
+var _apiKey = localStorage.getItem('marillion_apikey') || '';
+
+function saveApiKey() {
+  var val = (document.getElementById('apikey-input').value || '').trim();
+  var status = document.getElementById('apikey-status');
+  if (!val.startsWith('sk-ant-')) {
+    status.className = 'apikey-status err';
+    status.textContent = '✕ Sleutel moet beginnen met sk-ant-…';
+    return;
+  }
+  _apiKey = val;
+  localStorage.setItem('marillion_apikey', val);
+  status.className = 'apikey-status ok';
+  status.textContent = '✓ Opgeslagen';
+  document.getElementById('apikey-block').classList.add('hidden');
+}
+
+function initApiKey() {
+  if (_apiKey) {
+    document.getElementById('apikey-block').classList.add('hidden');
+  } else {
+    document.getElementById('apikey-input').addEventListener('keydown', function(e){ if (e.key === 'Enter') saveApiKey(); });
+  }
+}
+
+// ══ ZOEKEN ══
+function fillSearch(text) {
+  document.getElementById('search-input').value = text;
+  doFreeSearch();
+}
+
+async function doFreeSearch() {
+  var query = (document.getElementById('search-input').value || '').trim();
+  if (!query) return;
+
+  if (!_apiKey) {
+    document.getElementById('apikey-block').classList.remove('hidden');
+    document.getElementById('apikey-status').className = 'apikey-status err';
+    document.getElementById('apikey-status').textContent = '↑ Vul eerst je API-sleutel in';
+    return;
+  }
+
+  var btn = document.getElementById('search-btn');
+  var btnTxt = document.getElementById('search-btn-text');
+  var results = document.getElementById('search-results');
+
+  btnTxt.textContent = '…';
+  btn.disabled = true;
+  results.className = 'search-results show';
+  results.innerHTML =
+    '<div class="search-result-label">🔍 Zoeken naar "' + escHtml(query) + '"…</div>' +
+    '<div style="display:flex;gap:6px;padding:14px 0"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div></div>';
+
+  try {
+    var res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': _apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1000,
+        system: 'Je bent een muziekkenner gespecialiseerd in progressieve rock, art rock, post-rock en aanverwante genres. De gebruiker is een grote Marillion-fan (zowel Fish-era als Hogarth-era) en luistert ook naar: Porcupine Tree, Steven Wilson, Pink Floyd, Airbag, Bjørn Riis, Deftones, David Sylvian.\n\nGeef precies 5 aanbevelingen op basis van het verzoek. Zoek BUITEN de bekende collectie — geen bekende artiesten herhalen tenzij het echt een onbekend album is.\n\nAntwoord ALLEEN in dit JSON-formaat, niets anders:\n{"results":[{"title":"Albumtitel of Nummertitel","artist":"Artiestennaam","type":"album of nummer","why":"1-2 zinnen waarom dit past, in het Nederlands","ytmusic":"https://music.youtube.com/search?q=ARTIEST+TITEL","spotify":"https://open.spotify.com/search/ARTIEST%20TITEL"}]}',
+        messages: [{ role: 'user', content: 'Zoek muziek voor: ' + query }]
+      })
+    });
+
+    var data = await res.json();
+
+    if (data.error) {
+      throw new Error(data.error.message || 'API fout');
+    }
+
+    var raw = data.content && data.content[0] ? data.content[0].text : '{}';
+    raw = raw.replace(/```json|```/g, '').trim();
+    var parsed = JSON.parse(raw);
+    var items = parsed.results || [];
+
+    if (!items.length) throw new Error('Geen resultaten');
+
+    var html = '<div class="search-result-label">✦ ' + items.length + ' aanbevelingen</div>';
+    items.forEach(function(item) {
+      html +=
+        '<div class="search-result-card">' +
+          '<div class="src-title">' + escHtml(item.title) + '</div>' +
+          '<div class="src-artist">' + escHtml(item.artist) + ' · ' + escHtml(item.type || 'muziek') + '</div>' +
+          '<div class="src-why">' + escHtml(item.why) + '</div>' +
+          '<div class="src-links">' +
+            '<a class="src-link" href="' + item.ytmusic + '" target="_blank">🎵 YT Music</a>' +
+            '<a class="src-link" href="' + item.spotify + '" target="_blank">Spotify</a>' +
+          '</div>' +
+        '</div>';
+    });
+    results.innerHTML = html;
+
+  } catch(err) {
+    var msg = err.message || '';
+    var errHtml = msg.includes('401') || msg.includes('auth')
+      ? '⚠ Ongeldige API-sleutel. Klik op 🔑 hierboven om te wijzigen.'
+      : '⚠ ' + (msg || 'Verbinding mislukt. Controleer je sleutel en internetverbinding.');
+    results.innerHTML =
+      '<div class="search-result-label">Fout</div>' +
+      '<div style="font-size:13px;color:var(--muted);font-style:italic;padding:4px 0">' + errHtml +
+      ' <span onclick="document.getElementById(\'apikey-block\').classList.remove(\'hidden\')" style="color:var(--gold);cursor:pointer;text-decoration:underline">API-sleutel wijzigen</span></div>';
+  }
+
+  btnTxt.textContent = '↵';
+  btn.disabled = false;
+}
+
+function escHtml(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  initApiKey();
+  var inp = document.getElementById('search-input');
+  if (inp) inp.addEventListener('keydown', function(e){ if (e.key === 'Enter') doFreeSearch(); });
+});
+
+// ══ NOW PLAYING ══
+var _npTracks = [];
+var _npIdx = 0;
+
+// Zoek via Piped API het YouTube-video met de meeste views
+async function findYouTubeVideo(artist, title) {
+  var query = encodeURIComponent(artist + ' ' + title);
+  var apis = [
+    'https://pipedapi.kavin.rocks/search?q=' + query + '&filter=videos',
+    'https://pipedapi.adminforge.de/search?q=' + query + '&filter=videos',
+    'https://api.piped.yt/search?q=' + query + '&filter=videos'
+  ];
+  for (var i = 0; i < apis.length; i++) {
+    try {
+      var res = await fetch(apis[i]);
+      if (!res.ok) continue;
+      var data = await res.json();
+      var items = (data.items || []).filter(function(v) {
+        return v.url && v.type === 'stream' && v.duration > 60;
+      });
+      if (!items.length) continue;
+      // Neem video met meeste views
+      items.sort(function(a, b) { return (b.views || 0) - (a.views || 0); });
+      var best = items[0];
+      return 'https://music.youtube.com/watch' + best.url.replace('/watch', '');
+    } catch(e) {}
+  }
+  // Fallback: YT Music zoeken
+  return 'https://music.youtube.com/search?q=' + encodeURIComponent(artist + ' ' + title);
+}
+
+function npStart(tracks, startIdx) {
+  _npTracks = tracks;
+  _npIdx = startIdx || 0;
+  npUpdate();
+  npPlayCurrent();
+}
+
+function npUpdate() {
+  var t = _npTracks[_npIdx];
+  if (!t) return;
+  document.getElementById('np-track').textContent = t.title;
+  document.getElementById('np-artist').textContent = (_npIdx + 1) + '/' + _npTracks.length + '  ' + t.artist;
+  document.getElementById('np-next-btn').disabled = (_npIdx >= _npTracks.length - 1);
+  document.getElementById('now-playing-bar').style.display = 'flex';
+  document.body.classList.add('has-np');
+  document.querySelectorAll('.pl-track').forEach(function(el, i){ el.classList.toggle('np-active', i === _npIdx); });
+}
+
+async function npPlayCurrent() {
+  var t = _npTracks[_npIdx];
+  if (!t) return;
+  // Open window SYNCHROON (direct bij tap) — iOS blokkeert window.open na await
+  var win = window.open('', '_blank');
+  document.getElementById('np-track').textContent = '⏳ ' + t.title;
+  var url = await findYouTubeVideo(t.artist, t.title);
+  document.getElementById('np-track').textContent = t.title;
+  win.location.href = url;
+}
+
+function npNext() {
+  if (_npIdx < _npTracks.length - 1) {
+    _npIdx++;
+    npUpdate();
+    npPlayCurrent();
+  }
+}
+
+function npClose() {
+  document.getElementById('now-playing-bar').style.display = 'none';
+  document.body.classList.remove('has-np');
+  document.querySelectorAll('.pl-track').forEach(function(el){ el.classList.remove('np-active'); });
+  _npTracks = [];
+}
+var _plMoodIdx = -1;
+var _plMoodText = '';
+var _plGenres = [];
+
+function selectPlMood(idx, text) {
+  document.querySelectorAll('.pl-mood').forEach(function(el){ el.classList.remove('active'); });
+  document.getElementById('plm-' + idx).classList.add('active');
+  _plMoodIdx = idx;
+  _plMoodText = text;
+}
+
+function togglePlGenre(el, genre) {
+  el.classList.toggle('active');
+  var i = _plGenres.indexOf(genre);
+  if (i > -1) _plGenres.splice(i, 1);
+  else _plGenres.push(genre);
+}
+
+async function generatePlaylist() {
+  if (!_apiKey) {
+    switchTab('discover', document.querySelectorAll('.tab')[3]);
+    setTimeout(function(){ document.getElementById('apikey-block').classList.remove('hidden'); }, 100);
+    return;
+  }
+  if (_plMoodIdx < 0) {
+    var btn = document.getElementById('pl-gen-btn');
+    btn.style.borderColor = 'rgba(192,57,79,0.8)';
+    document.getElementById('pl-gen-txt').textContent = 'Kies eerst een stemming ↑';
+    setTimeout(function(){ btn.style.borderColor = ''; document.getElementById('pl-gen-txt').textContent = 'Genereer Playlist'; }, 2000);
+    return;
+  }
+
+  var btn = document.getElementById('pl-gen-btn');
+  var icon = document.getElementById('pl-gen-icon');
+  var genTxt = document.getElementById('pl-gen-txt');
+  var output = document.getElementById('pl-output');
+
+  btn.disabled = true;
+  icon.textContent = '…';
+  genTxt.textContent = 'Genereren…';
+  output.innerHTML = '<div style="display:flex;gap:6px;padding:24px 0;justify-content:center"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div></div>';
+
+  var genreStr = _plGenres.length ? ' Genres bij voorkeur: ' + _plGenres.join(', ') + '.' : '';
+  var prompt = 'Stemming: ' + _plMoodText + '.' + genreStr + ' Maak een playlist van precies 12 nummers van ONBEKENDE of MINDER BEKENDE bands. NIET gebruiken: Marillion, Porcupine Tree, Steven Wilson, Pink Floyd, Airbag, Bjørn Riis, Deftones, David Sylvian. Varieer artiesten — geen twee nummers van dezelfde band.';
+
+  try {
+    var res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': _apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1800,
+        system: 'Je bent een muziekkenner. Antwoord ALLEEN in dit JSON-formaat zonder uitleg:\n{"mood":"korte stemmingsnaam","tracks":[{"num":1,"title":"Exacte nummertitel","artist":"Exacte artiestennaam","album":"Albumnaam","year":1990,"why":"één zin waarom dit past bij de smaak van deze Marillion-fan","yt":"https://music.youtube.com/search?q=ARTIEST+TITEL+ALBUM"}]}\n\nBelangrijk voor het yt-veld: gebruik ALLEEN de exacte artiestsnaam + exacte nummertitel in de zoekquery. Geen extra woorden. Vervang spaties door +. Voorbeeld: Anathema "Shades of Blue" → "https://music.youtube.com/search?q=Anathema+Shades+of+Blue"',
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    var data = await res.json();
+    if (data.error) throw new Error(data.error.message || 'API fout');
+
+    var raw = (data.content && data.content[0] ? data.content[0].text : '{}').replace(/```json|```/g,'').trim();
+    var pl = JSON.parse(raw);
+    var tracks = pl.tracks || [];
+    if (!tracks.length) throw new Error('leeg');
+
+    var html =
+      '<div class="pl-header">' +
+        '<div class="pl-title">' + escHtml(pl.mood || '') + '</div>' +
+        '<div class="pl-count">' + tracks.length + ' nummers</div>' +
+      '</div>' +
+      '<button class="pl-play-all-btn" id="pl-play-all">▶ Speel Alles</button>' +
+      '<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:4px 14px;" id="pl-track-list">';
+
+    tracks.forEach(function(t) {
+      var ytUrl = t.yt;
+      if (!ytUrl || ytUrl.indexOf('ARTIEST') > -1 || ytUrl.indexOf('TITEL') > -1) {
+        ytUrl = 'https://music.youtube.com/search?q=' + encodeURIComponent(t.artist + ' ' + t.title);
+      }
+      t.yt = ytUrl; // update for npStart use
+      html +=
+        '<div class="pl-track" onclick="npStart(_currentTracks,' + (t.num - 1) + ')">' +
+          '<div class="pl-num">' + t.num + '</div>' +
+          '<div class="pl-track-info">' +
+            '<div class="pl-track-title">' + escHtml(t.title) + '</div>' +
+            '<div class="pl-track-artist">' + escHtml(t.artist) +
+              (t.album ? ' · ' + escHtml(t.album) : '') +
+              (t.year ? ' · ' + t.year : '') + '</div>' +
+            '<div class="pl-track-why">' + escHtml(t.why) + '</div>' +
+          '</div>' +
+          '<div class="pl-track-link">▶</div>' +
+        '</div>';
+    });
+
+    html += '</div><button class="pl-regen-btn" onclick="generatePlaylist()">↺ Nieuwe playlist genereren</button>';
+    output.innerHTML = html;
+
+    // store tracks globally for npStart references
+    window._currentTracks = tracks;
+    document.getElementById('pl-play-all').onclick = function() { npStart(tracks, 0); };
+
+  } catch(e) {
+    output.innerHTML = '<div style="font-size:13px;color:var(--muted);font-style:italic;padding:8px 0">⚠ Kon geen playlist genereren. Controleer je API-sleutel via het Ontdek tabblad.</div>';
+  }
+
+  btn.disabled = false;
+  icon.textContent = '▶';
+  genTxt.textContent = 'Genereer Playlist';
+}
+
+(function(){
+  const canvas = document.getElementById('bg');
+  const ctx = canvas.getContext('2d');
+  let W, H, stars = [];
+  function resize(){ W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+  function init(){ stars = []; for(let i=0;i<150;i++) stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.2+0.2,speed:Math.random()*0.003+0.001,phase:Math.random()*Math.PI*2}); }
+  function draw(t){
+    ctx.clearRect(0,0,W,H);
+    const g = ctx.createRadialGradient(W*.7,H*.2,0,W*.7,H*.2,W*.6);
+    g.addColorStop(0,'rgba(139,26,46,0.07)'); g.addColorStop(1,'transparent');
+    ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+    const g2 = ctx.createRadialGradient(W*.2,H*.8,0,W*.2,H*.8,W*.5);
+    g2.addColorStop(0,'rgba(58,176,184,0.05)'); g2.addColorStop(1,'transparent');
+    ctx.fillStyle = g2; ctx.fillRect(0,0,W,H);
+    stars.forEach(function(s){
+      const a = 0.15 + 0.65*(0.5+0.5*Math.sin(t*s.speed*1000+s.phase));
+      ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle = 'rgba(232,209,168,'+a+')'; ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize', function(){ resize(); init(); });
+  resize(); init(); draw(0);
+})();
+
+// ══ INIT ══
+renderStory();
+renderDiscoFilters();
+renderDiscoGrid();
+renderBands();
+renderOtherFilters();
+renderOtherAlbums();
+</script>
+
+</body>
+</html>
