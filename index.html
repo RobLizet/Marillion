@@ -22,11 +22,11 @@
   --safe-b: env(safe-area-inset-bottom, 0px);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html, body { height: 100%; overflow: hidden; }
-body { background: var(--bg); color: var(--text); font-family: 'Crimson Pro', serif; font-size: 16px; position: fixed; width: 100%; height: 100%; }
+html, body { height: 100%; overflow: hidden; background: #070d1a; }
+body { background: #070d1a; color: #e8e0d0; font-family: 'Crimson Pro', serif; font-size: 16px; position: fixed; width: 100%; height: 100%; }
 canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
 
-.screen { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; z-index: 1; padding-bottom: calc(var(–tab-h) + var(–safe-b) + 24px); display: none; -webkit-overflow-scrolling: touch; }
+.screen { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; z-index: 1; padding-bottom: calc(var(–tab-h) + var(–safe-b) + 24px); display: none; -webkit-overflow-scrolling: touch; background: #05070e; }
 .screen.active { display: block; }
 
 .tab-bar { position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; height: calc(var(–tab-h) + var(–safe-b)); background: rgba(5,7,14,0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid rgba(200,168,74,0.2); display: flex; align-items: flex-start; padding-top: 10px; }
@@ -1002,7 +1002,7 @@ async function npPlayCurrent() {
 
   if (_npPlatform === 'sp') {
     // Spotify: direct openen, geen async nodig
-    var spUrl = 'https://open.spotify.com/search/' + encodeURIComponent(t.artist + ' ' + t.title);
+    var spUrl = 'https://open.spotify.com/search/' + encodeURIComponent(t.artist + ' ' + t.title) + '/tracks';
     window.open(spUrl, '_blank');
     return;
   }
