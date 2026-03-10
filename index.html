@@ -319,6 +319,9 @@ canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
   </div>
 
   <div class="search-chips-row">
+    <div class="search-chip" onclick="fillSearch('prog rock melancholisch')">prog melancholisch</div>
+    <div class="search-chip" onclick="fillSearch('prog rock donker en zwaar')">prog donker</div>
+    <div class="search-chip" onclick="fillSearch('psychedelische rock')">psychedelisch</div>
     <div class="search-chip" onclick="fillSearch('prog rock met cello')">prog + cello</div>
     <div class="search-chip" onclick="fillSearch('ambient post-rock instrumentaal')">ambient post-rock</div>
     <div class="search-chip" onclick="fillSearch('neofolk melancholisch Skandinavisch')">neofolk</div>
@@ -681,7 +684,7 @@ async function getMoodRec(el, mood) {
   txt.innerHTML = '<div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div></div>';
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST', headers:{'Content-Type':'application/json'},
+      method:'POST', headers:{'Content-Type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
       body: JSON.stringify({
         model:'claude-haiku-4-5-20251001', max_tokens:300,
         system:'Je bent een enthousiaste prog rock gids. De gebruiker is een grote Marillion-fan (Fish-era én Hogarth-era) en luistert ook naar: Porcupine Tree, Steven Wilson, Pink Floyd, Airbag, Bjørn Riis, Deftones, David Sylvian. Geef een korte, persoonlijke aanbeveling van 2-3 zinnen in het Nederlands. Noem één specifiek album of nummer. Schrijf warm en direct, alsof je een vriend bent.',
@@ -727,7 +730,10 @@ async function doFreeSearch() {
   try {
     var res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 800,
