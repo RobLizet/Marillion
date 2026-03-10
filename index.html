@@ -1002,7 +1002,7 @@ async function npPlayCurrent() {
 
   if (_npPlatform === 'sp') {
     // Spotify: direct openen, geen async nodig
-    var spUrl = 'https://open.spotify.com/search/' + encodeURIComponent(t.title + ' ' + t.artist) + '/tracks';
+    var spUrl = 'https://open.spotify.com/search/' + encodeURIComponent(t.title + ' ' + t.artist);
     window.open(spUrl, '_blank');
     return;
   }
